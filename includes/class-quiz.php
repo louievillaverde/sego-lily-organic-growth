@@ -79,7 +79,7 @@ class SLRQ_Quiz {
 		body.lprq-landing .page-title,
 		body.lprq-landing .breadcrumb,
 		body.lprq-landing .breadcrumbs,
-		body.lprq-landing .slw-customer-mode-toggle,
+		body.lprq-landing [class*="slw"], body.lprq-landing [class*="wholesale"], body.lprq-landing [id*="slw"], body.lprq-landing [id*="wholesale"], body.lprq-landing .slw-customer-mode-toggle,
 		body.lprq-landing .slw-mode-toggle,
 		body.lprq-landing .wholesale-toggle,
 		body.lprq-landing .for-my-store-toggle { display: none !important; }
@@ -101,13 +101,13 @@ class SLRQ_Quiz {
 		.lprq__input:focus { border-color: #386174; background: #ffffff; box-shadow: 0 0 0 3px rgba(56, 97, 116, 0.1); }
 		.lprq__input-error { border-color: #b8302e !important; }
 		.lprq__pills { display: flex; flex-direction: column; gap: 12px; margin: 0 0 24px; }
-		.lprq__pill { display: block; width: 100%; padding: 18px 22px; font-size: 16px; font-weight: 500; background: #ffffff; border: 2px solid #386174; color: #386174; border-radius: 10px; cursor: pointer; text-align: left; font-family: Georgia, 'Times New Roman', serif; transition: all 0.15s ease; line-height: 1.4; }
-		.lprq__pill:hover { background: #386174; color: #ffffff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(56, 97, 116, 0.2); }
-		.lprq__pill--selected { background: #386174; color: #ffffff; box-shadow: 0 4px 12px rgba(56, 97, 116, 0.2); }
+		.lprq__pill, button.lprq__pill { display: block !important; width: 100% !important; padding: 18px 22px !important; font-size: 16px !important; font-weight: 500 !important; background: #ffffff !important; border: 2px solid #386174 !important; color: #386174 !important; border-radius: 10px !important; cursor: pointer !important; text-align: left !important; font-family: Georgia, 'Times New Roman', serif !important; transition: all 0.15s ease !important; line-height: 1.4 !important; text-transform: none !important; letter-spacing: normal !important; opacity: 1 !important; visibility: visible !important; }
+		.lprq__pill:hover, button.lprq__pill:hover { background: #386174 !important; color: #ffffff !important; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(56, 97, 116, 0.2); }
+		.lprq__pill--selected, button.lprq__pill--selected { background: #386174 !important; color: #ffffff !important; box-shadow: 0 4px 12px rgba(56, 97, 116, 0.2); }
 		.lprq__btn { display: block; width: 100%; padding: 16px 24px; font-size: 17px; font-weight: 600; background: #386174; color: #ffffff; border: none; border-radius: 10px; cursor: pointer; margin-top: 20px; font-family: Georgia, 'Times New Roman', serif; transition: all 0.15s ease; letter-spacing: 0.3px; }
 		.lprq__btn:hover { background: #2a4a5a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(56, 97, 116, 0.2); }
-		.lprq__back { display: block; margin: 20px auto 0; padding: 8px 16px; font-size: 14px; color: #8A9499; background: none; border: none; cursor: pointer; font-family: Georgia, 'Times New Roman', serif; text-decoration: underline; }
-		.lprq__back:hover { color: #386174; }
+		.lprq__back { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 24px; padding: 10px 16px; font-size: 14px; color: #386174; background: #F7F6F3; border: 1px solid #D4CFC4; border-radius: 8px; cursor: pointer; font-family: Georgia, 'Times New Roman', serif; text-decoration: none; transition: all 0.15s ease; }
+		.lprq__back:hover { background: #ffffff; border-color: #386174; }
 		.lprq__error { color: #b8302e; font-size: 14px; margin-top: 10px; min-height: 20px; font-family: Georgia, 'Times New Roman', serif; }
 		.lprq__loading { text-align: center; padding: 80px 20px; color: #8A9499; font-size: 16px; font-style: italic; }
 		.lprq__results { text-align: center; }
@@ -148,14 +148,14 @@ class SLRQ_Quiz {
 					<?php wp_nonce_field( 'lprq_quiz', 'lprq_nonce' ); ?>
 
 					<div class="lprq__step lprq__step--active" data-step="1">
-						<h2>What&rsquo;s your first name?</h2>
+						<h2>What&rsquo;s your first&nbsp;name?</h2>
 						<input type="text" class="lprq__input" id="lprq-name" placeholder="First name" autocomplete="given-name" maxlength="30" />
 						<div class="lprq__error" id="lprq-name-error"></div>
 						<button type="button" class="lprq__btn" data-next>Next</button>
 					</div>
 
 					<div class="lprq__step" data-step="2">
-						<h2>What bugs you most about your skin?</h2>
+						<h2>What bugs you most about your&nbsp;skin?</h2>
 						<div class="lprq__pills" data-field="skin_concern">
 							<button type="button" class="lprq__pill" data-value="Wrinkles &amp; dark spots">Wrinkles &amp; dark spots</button>
 							<button type="button" class="lprq__pill" data-value="Dryness &amp; tightness">Dryness &amp; tightness</button>
@@ -166,7 +166,7 @@ class SLRQ_Quiz {
 					</div>
 
 					<div class="lprq__step" data-step="3">
-						<h2>How many skincare products do you use daily?</h2>
+						<h2>How many skincare products do you use&nbsp;daily?</h2>
 						<div class="lprq__pills" data-field="product_count">
 							<button type="button" class="lprq__pill" data-value="1-3">1 to 3 products</button>
 							<button type="button" class="lprq__pill" data-value="4-6">4 to 6 products</button>
@@ -176,7 +176,7 @@ class SLRQ_Quiz {
 					</div>
 
 					<div class="lprq__step" data-step="4">
-						<h2>What frustrates you most about skincare?</h2>
+						<h2>What frustrates you most about&nbsp;skincare?</h2>
 						<div class="lprq__pills" data-field="frustration">
 							<button type="button" class="lprq__pill" data-value="Nothing works long enough">Nothing works long enough</button>
 							<button type="button" class="lprq__pill" data-value="Too many products">Too many products</button>
@@ -187,7 +187,7 @@ class SLRQ_Quiz {
 					</div>
 
 					<div class="lprq__step" data-step="5">
-						<h2>Where should we send your routine?</h2>
+						<h2>Where should we send your&nbsp;routine?</h2>
 						<input type="email" class="lprq__input" id="lprq-email" placeholder="you@email.com" autocomplete="email" />
 						<button type="button" class="lprq__btn" data-submit>Get My Routine</button>
 						<div class="lprq__error" id="lprq-error"></div>
