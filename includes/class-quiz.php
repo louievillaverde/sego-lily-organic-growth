@@ -125,6 +125,10 @@ class SLRQ_Quiz {
 		.lprq__product-blurb { font-size: 14px; color: #4a5d68; line-height: 1.5; margin: 0 0 16px; }
 		.lprq__product-link { display: inline-block; padding: 10px 18px; font-size: 14px; font-weight: 600; background: #386174; color: #ffffff !important; text-decoration: none; border-radius: 6px; }
 		.lprq__product-link:hover { background: #2a4a5a; }
+		.lprq__privacy { font-size: 13px; color: #8A9499; line-height: 1.5; margin: 10px 0 16px; text-align: center; font-style: italic; }
+		.lprq__callout { background: #386174; color: #ffffff; padding: 16px 20px; border-radius: 10px; margin: 0 0 24px; text-align: center; font-size: 15px; line-height: 1.5; font-family: Georgia, \'Times New Roman\', serif; }
+		.lprq__callout strong { font-weight: 700; }
+		.lprq__reassurance { font-size: 14px; color: #628393; margin: 16px 0 0; text-align: center; line-height: 1.5; }
 		.lprq__signoff { font-size: 15px; color: #628393; font-style: italic; margin-top: 28px; }
 
 		@media (max-width: 540px) {
@@ -196,6 +200,7 @@ class SLRQ_Quiz {
 					<div class="lprq__step" data-step="5">
 						<h2>Where should we send your&nbsp;routine?</h2>
 						<input type="email" class="lprq__input" id="lprq-email" placeholder="you@email.com" autocomplete="email" />
+						<p class="lprq__privacy">One email with your matches. We don&rsquo;t share your address. Unsubscribe anytime.</p>
 						<button type="button" class="lprq__btn" data-submit>Get My Routine</button>
 						<div class="lprq__error" id="lprq-error"></div>
 					</div>
@@ -210,6 +215,13 @@ class SLRQ_Quiz {
 							<h2 class="lprq__results-heading">Your routine is 2 things.</h2>
 							<p class="lprq__results-why" id="lprq-result-why"></p>
 							<div class="lprq__products" id="lprq-result-products"></div>
+							<?php
+							$callout = apply_filters( 'lprq_results_callout', '' );
+							if ( ! empty( $callout ) ) {
+								echo '<div class="lprq__callout">' . wp_kses_post( $callout ) . '</div>';
+							}
+							?>
+							<p class="lprq__reassurance" id="lprq-reassurance"></p>
 							<p class="lprq__signoff"><?php echo esc_html( apply_filters( 'lprq_signoff', '' ) ); ?></p>
 						</div>
 					</div>
@@ -382,6 +394,10 @@ class SLRQ_Quiz {
 
 			function renderResults(payload) {
 				document.getElementById('lprq-result-greeting').textContent = 'For ' + (quizData.firstname || 'you');
+				var reass = document.getElementById('lprq-reassurance');
+				if (reass && quizData.email) {
+					reass.textContent = 'We saved your match. Your routine is on its way to ' + quizData.email + '.';
+				}
 				document.getElementById('lprq-result-why').textContent = payload.why || '';
 				var grid = document.getElementById('lprq-result-products');
 				grid.innerHTML = '';
