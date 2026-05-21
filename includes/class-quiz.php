@@ -1,10 +1,10 @@
 <?php
 /**
- * LP Quiz Suite: renders the on-site routine quiz + handles submission.
+ * Sego Lily Routine Quiz: renders the on-site routine quiz + handles submission.
  *
  * Uses SLRQ_Mautic for lead sync. No dependency on sibling plugins.
  *
- * @package LPQuizSuite
+ * @package SegoLilyRoutineQuiz
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Standalone Mautic integration for LP Quiz Suite.
+ * Standalone Mautic integration for Sego Lily Routine Quiz.
  *
  * Reads credentials from this plugin's own settings (lprq_mautic_*). Falls
  * back to the Sego Lily Wholesale plugin's settings (slw_mautic_*) if this
@@ -9,7 +9,7 @@
  * her re-entering credentials. Future clients use the lprq_mautic_* settings
  * directly.
  *
- * @package LPQuizSuite
+ * @package SegoLilyRoutineQuiz
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SLRQ_Mautic {
 
 	const TOKEN_TRANSIENT = 'lprq_mautic_access_token';
-	const USER_AGENT      = 'LPQuizSuite/1.0';
+	const USER_AGENT      = 'SegoLilyRoutineQuiz/1.0';
 
 	/**
 	 * Send a quiz lead to Mautic. Creates contact if new, updates + tags if existing.
@@ -37,7 +37,7 @@ class SLRQ_Mautic {
 	public static function send_quiz_lead( $data ) {
 		$creds = self::get_credentials();
 		if ( ! $creds ) {
-			return array( 'success' => false, 'message' => 'Mautic not configured. Go to Settings > LP Quiz Suite to add credentials.' );
+			return array( 'success' => false, 'message' => 'Mautic not configured. Go to Settings > Sego Lily Routine Quiz to add credentials.' );
 		}
 
 		$email = isset( $data['email'] ) ? sanitize_email( $data['email'] ) : '';
