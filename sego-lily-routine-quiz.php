@@ -3,7 +3,7 @@
  * Plugin Name:       Routine Quiz
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-routine-quiz
  * Description:       Five-question quiz that captures retail leads, syncs to Mautic with tags, and shows each customer a 2-product recommendation from the Sego Lily line. Lives at /your-routine, auto-created on activation.
- * Version:           1.6.0
+ * Version:           1.7.0
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.6.0' );
+define( 'SLRQ_VERSION', '1.7.0' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -74,3 +74,32 @@ add_filter( 'lprq_results_callout', function( $existing ) {
 	}
 	return '';
 } );
+
+/**
+ * Product image URLs — pulled from segolilyskincare.com WP media library.
+ * Returns 600x600 webp images for each product slug. Falls back to ageless honey
+ * if the product slug doesn't match any known variant.
+ */
+add_filter( 'lprq_product_image', function( $url, $product, $scent ) {
+	$base = 'https://segolilyskincare.com/wp-content/uploads/2026/01/';
+	$map  = array(
+		'ageless'  => $base . 'ageless_honey_1x-1-600x600.webp',
+		'renewal'  => array(
+			'mandarin-orange' => $base . 'renewal_mandarin_orange_1x-600x600.webp',
+			'unscented'       => $base . 'babymom3-300x300.webp',
+			'default'         => $base . 'renewal_mandarin_orange_1x-600x600.webp',
+		),
+		'moxie'    => $base . 'moxie_vanilla_spice_1x-600x600.webp',
+	);
+	if ( $product === 'ageless' ) {
+		return $map['ageless'];
+	}
+	if ( $product === 'renewal' ) {
+		return $map['renewal'][ $scent ] ?? $map['renewal']['default'];
+	}
+	if ( $product === 'moxie' ) {
+		return $map['moxie'];
+	}
+	return $url;
+}, 10, 3 );
+

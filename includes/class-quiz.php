@@ -115,16 +115,29 @@ class SLRQ_Quiz {
 		.lprq__results { text-align: center; }
 		.lprq__results-greeting { font-size: 14px; color: #8A9499; letter-spacing: 1px; text-transform: uppercase; margin: 0 0 12px; }
 		.lprq__results-heading { font-size: 32px; font-weight: 600; margin: 0 0 16px; color: #2C2C2C; line-height: 1.3; }
-		.lprq__results-why { font-size: 16px; color: #4a5d68; line-height: 1.6; margin: 0 0 36px; padding: 20px 24px; background: #F7F6F3; border-radius: 10px; text-align: left; }
-		.lprq__products { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; text-align: left; }
-		.lprq__product { background: #ffffff; border: 1px solid #E8E2D6; border-radius: 12px; padding: 24px; }
-		.lprq__product-image { width: 100%; aspect-ratio: 1; background: #F7F6F3; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; color: #B8A98C; font-size: 13px; overflow: hidden; }
-		.lprq__product-image img { width: 100%; height: 100%; object-fit: cover; }
-		.lprq__product-name { font-size: 18px; font-weight: 600; margin: 0 0 4px; color: #2C2C2C; }
-		.lprq__product-scent { font-size: 14px; color: #8A9499; margin: 0 0 10px; font-style: italic; }
-		.lprq__product-blurb { font-size: 14px; color: #4a5d68; line-height: 1.5; margin: 0 0 16px; }
+		.lprq__results-why { font-size: 16px; color: #4a5d68; line-height: 1.7; margin: 0 0 36px; padding: 24px 28px; background: #F7F6F3; border-radius: 12px; text-align: left; border-left: 4px solid #386174; }
+		.lprq__primary-product { background: #ffffff; border: 2px solid #386174; border-radius: 12px; padding: 28px; margin: 0 0 32px; text-align: left; display: flex; gap: 24px; align-items: flex-start; }
+		.lprq__primary-product .lprq__product-image { width: 180px; min-width: 180px; aspect-ratio: 1; background: #F7F6F3; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #B8A98C; font-size: 13px; overflow: hidden; margin: 0; }
+		.lprq__primary-product .lprq__product-image img { width: 100%; height: 100%; object-fit: cover; }
+		.lprq__primary-product .lprq__product-body { flex: 1; }
+		.lprq__primary-product .lprq__product-label { font-size: 11px; color: #386174; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin: 0 0 8px; }
+		.lprq__primary-product .lprq__product-name { font-size: 22px; font-weight: 600; margin: 0 0 4px; color: #2C2C2C; line-height: 1.3; }
+		.lprq__primary-product .lprq__product-scent { font-size: 14px; color: #8A9499; margin: 0 0 14px; font-style: italic; }
+		.lprq__primary-product .lprq__product-blurb { font-size: 15px; color: #4a5d68; line-height: 1.55; margin: 0 0 18px; }
+		.lprq__pairs-label { font-size: 12px; color: #8A9499; letter-spacing: 2px; text-transform: uppercase; text-align: center; margin: 0 0 12px; font-weight: 600; position: relative; }
+		.lprq__pairs-label::before, .lprq__pairs-label::after { content: ''; position: absolute; top: 50%; width: 60px; height: 1px; background: #D4CFC4; }
+		.lprq__pairs-label::before { left: calc(50% - 100px); }
+		.lprq__pairs-label::after { right: calc(50% - 100px); }
+		.lprq__secondary-product { background: #FAFAF7; border: 1px solid #E8E2D6; border-radius: 10px; padding: 18px; margin: 0 0 32px; text-align: left; display: flex; gap: 16px; align-items: center; }
+		.lprq__secondary-product .lprq__product-image { width: 80px; min-width: 80px; aspect-ratio: 1; background: #ffffff; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #B8A98C; font-size: 11px; overflow: hidden; margin: 0; }
+		.lprq__secondary-product .lprq__product-image img { width: 100%; height: 100%; object-fit: cover; }
+		.lprq__secondary-product .lprq__product-body { flex: 1; }
+		.lprq__secondary-product .lprq__product-name { font-size: 16px; font-weight: 600; margin: 0 0 2px; color: #2C2C2C; }
+		.lprq__secondary-product .lprq__product-scent { font-size: 13px; color: #8A9499; margin: 0 0 6px; font-style: italic; }
+		.lprq__secondary-product .lprq__product-blurb { font-size: 13px; color: #4a5d68; line-height: 1.45; margin: 0 0 8px; }
 		.lprq__product-link { display: inline-block; padding: 10px 18px; font-size: 14px; font-weight: 600; background: #386174; color: #ffffff !important; text-decoration: none; border-radius: 6px; }
 		.lprq__product-link:hover { background: #2a4a5a; }
+		.lprq__secondary-product .lprq__product-link { padding: 8px 14px; font-size: 13px; }
 		.lprq__privacy { font-size: 13px; color: #8A9499; line-height: 1.5; margin: 10px 0 16px; text-align: center; font-style: italic; }
 		.lprq__callout { background: #386174; color: #ffffff; padding: 16px 20px; border-radius: 10px; margin: 0 0 24px; text-align: center; font-size: 15px; line-height: 1.5; font-family: Georgia, \'Times New Roman\', serif; }
 		.lprq__callout strong { font-weight: 700; }
@@ -135,8 +148,12 @@ class SLRQ_Quiz {
 			.lprq { padding: 28px 20px; }
 			.lprq__step h2 { font-size: 22px; margin: 0 0 24px; }
 			.lprq__pill { padding: 16px 18px; font-size: 15px; }
-			.lprq__products { grid-template-columns: 1fr; gap: 16px; }
 			.lprq__results-heading { font-size: 26px; }
+			.lprq__primary-product { flex-direction: column; gap: 16px; padding: 20px; }
+			.lprq__primary-product .lprq__product-image { width: 100%; min-width: 0; max-width: 240px; margin: 0 auto; }
+			.lprq__pairs-label::before, .lprq__pairs-label::after { width: 30px; }
+			.lprq__pairs-label::before { left: calc(50% - 75px); }
+			.lprq__pairs-label::after { right: calc(50% - 75px); }
 		}
 		</style>
 
@@ -212,9 +229,11 @@ class SLRQ_Quiz {
 					<div class="lprq__step" data-step="results">
 						<div class="lprq__results">
 							<p class="lprq__results-greeting" id="lprq-result-greeting"></p>
-							<h2 class="lprq__results-heading">Your routine is 2 things.</h2>
+							<h2 class="lprq__results-heading">Your match</h2>
 							<p class="lprq__results-why" id="lprq-result-why"></p>
-							<div class="lprq__products" id="lprq-result-products"></div>
+							<div id="lprq-result-primary"></div>
+							<div class="lprq__pairs-label">Pairs well with</div>
+							<div id="lprq-result-secondary"></div>
 							<?php
 							$callout = apply_filters( 'lprq_results_callout', '' );
 							if ( ! empty( $callout ) ) {
@@ -398,25 +417,44 @@ class SLRQ_Quiz {
 				if (reass && quizData.email) {
 					reass.textContent = 'We saved your match. Your routine is on its way to ' + quizData.email + '.';
 				}
-				document.getElementById('lprq-result-why').textContent = payload.why || '';
-				var grid = document.getElementById('lprq-result-products');
-				grid.innerHTML = '';
-				[payload.primary, payload.secondary].forEach(function(p) {
-					if (!p) return;
-					var card = document.createElement('div');
-					card.className = 'lprq__product';
-					card.innerHTML =
-						'<div class="lprq__product-image">' + (p.image_url ? '<img src="' + p.image_url + '" alt="' + p.name + '" />' : p.name) + '</div>' +
-						'<div class="lprq__product-name">' + p.name + '</div>' +
-						'<div class="lprq__product-scent">' + p.scent + '</div>' +
-						'<div class="lprq__product-blurb">' + p.blurb + '</div>' +
-						'<a class="lprq__product-link" href="' + p.shop_url + '">Shop &rarr;</a>';
-					grid.appendChild(card);
-				});
+				document.getElementById('lprq-result-why').innerHTML = payload.why || '';
+				renderPrimary(payload.primary);
+				renderSecondary(payload.secondary);
 				showStep('results');
 				if (typeof gtag === 'function') {
 					gtag('event', 'quiz_completed', { skin_concern: quizData.skin_concern });
 				}
+			}
+
+			function renderPrimary(p) {
+				var slot = document.getElementById('lprq-result-primary');
+				if (!slot || !p) return;
+				slot.innerHTML =
+					'<div class="lprq__primary-product">' +
+						'<div class="lprq__product-image">' + (p.image_url ? '<img src="' + p.image_url + '" alt="' + p.name + '" />' : p.name) + '</div>' +
+						'<div class="lprq__product-body">' +
+							'<div class="lprq__product-label">Start here</div>' +
+							'<div class="lprq__product-name">' + p.name + '</div>' +
+							'<div class="lprq__product-scent">' + p.scent + '</div>' +
+							'<div class="lprq__product-blurb">' + p.blurb + '</div>' +
+							'<a class="lprq__product-link" href="' + p.shop_url + '">Shop &rarr;</a>' +
+						'</div>' +
+					'</div>';
+			}
+
+			function renderSecondary(p) {
+				var slot = document.getElementById('lprq-result-secondary');
+				if (!slot || !p) return;
+				slot.innerHTML =
+					'<div class="lprq__secondary-product">' +
+						'<div class="lprq__product-image">' + (p.image_url ? '<img src="' + p.image_url + '" alt="' + p.name + '" />' : p.name) + '</div>' +
+						'<div class="lprq__product-body">' +
+							'<div class="lprq__product-name">' + p.name + '</div>' +
+							'<div class="lprq__product-scent">' + p.scent + '</div>' +
+							'<div class="lprq__product-blurb">' + p.blurb + '</div>' +
+							'<a class="lprq__product-link" href="' + p.shop_url + '">Shop &rarr;</a>' +
+						'</div>' +
+					'</div>';
 			}
 		})();
 		</script>
