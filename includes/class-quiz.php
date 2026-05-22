@@ -115,8 +115,10 @@ class SLRQ_Quiz {
 		.lprq__results { text-align: center; }
 		.lprq__results-greeting { font-size: 14px; color: #8A9499; letter-spacing: 1px; text-transform: uppercase; margin: 0 0 12px; }
 		.lprq__results-heading { font-size: 32px; font-weight: 600; margin: 0 0 16px; color: #2C2C2C; line-height: 1.3; }
-		.lprq__results-why { font-size: 16px; color: #4a5d68; line-height: 1.65; margin: 0 0 56px; padding: 24px 28px; background: #F7F6F3; border-radius: 12px; text-align: left; border-left: 4px solid #386174; }
-		.lprq__primary-product { background: #ffffff; border: 2px solid #386174; border-radius: 14px; padding: 32px; margin: 0 0 36px !important; text-align: left; display: flex; gap: 28px; align-items: center; box-shadow: 0 6px 20px rgba(56, 97, 116, 0.10); }
+		.lprq__results-why { font-size: 16px; color: #4a5d68; line-height: 1.65; margin: 0 0 64px !important; padding: 24px 28px; background: #F7F6F3; border-radius: 12px; text-align: left; border-left: 4px solid #386174; display: block; }
+		.lprq__primary-product { background: #ffffff; border: 2px solid #386174; border-radius: 14px; padding: 32px; margin: 0 0 36px !important; margin-top: 0 !important; text-align: left; display: flex; gap: 28px; align-items: center; box-shadow: 0 6px 20px rgba(56, 97, 116, 0.10); }
+		#lprq-result-primary { display: block; margin-top: 0 !important; padding-top: 0 !important; }
+		#lprq-result-why + #lprq-result-primary { margin-top: 0; }
 		.lprq__primary-product .lprq__product-image { width: 200px; min-width: 200px; aspect-ratio: 1; background: #F7F6F3; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #B8A98C; font-size: 13px; overflow: hidden; margin: 0; }
 		.lprq__primary-product .lprq__product-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
 		.lprq__primary-product .lprq__product-body { flex: 1; }
@@ -128,10 +130,12 @@ class SLRQ_Quiz {
 		.lprq__primary-product .lprq__product-link:hover { background: #2a4a5a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(56, 97, 116, 0.25); }
 		.lprq__pairs-note { font-size: 15px; color: #4a5d68; text-align: center; margin: 0 0 32px; padding: 18px 22px; background: #FAFAF7; border-radius: 10px; line-height: 1.5; font-family: Georgia, 'Times New Roman', serif; border: 1px solid #E8E2D6; }
 		.lprq__pairs-note-label { display: block; font-size: 11px; color: #8A9499; letter-spacing: 2px; text-transform: uppercase; margin: 0 0 10px; font-weight: 600; }
-		.lprq__pairs-link { display: inline-flex; align-items: center; gap: 12px; color: #386174 !important; font-weight: 600; text-decoration: none; padding: 6px 10px; border-radius: 8px; transition: background 0.15s ease; }
+		.lprq__pairs-link { display: inline-flex; align-items: center; gap: 14px; color: #386174 !important; font-weight: 600; text-decoration: none; padding: 10px 14px; border-radius: 8px; transition: background 0.15s ease; max-width: 100%; }
 		.lprq__pairs-link:hover { background: #ffffff; }
-		.lprq__pairs-link span { text-decoration: underline; text-underline-offset: 3px; }
-		.lprq__pairs-thumb { width: 48px; height: 48px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: #ffffff; }
+		.lprq__pairs-text { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
+		.lprq__pairs-text strong { font-weight: 600; color: #2C2C2C; font-size: 15px; line-height: 1.3; }
+		.lprq__pairs-cta { font-size: 13px; color: #386174; text-decoration: underline; text-underline-offset: 3px; font-weight: 600; }
+		.lprq__pairs-thumb { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #ffffff; border: 1px solid #E8E2D6; }
 		.lprq__privacy { font-size: 13px; color: #8A9499; line-height: 1.5; margin: 10px 0 16px; text-align: center; font-style: italic; }
 		.lprq__callout { background: #386174; color: #ffffff; padding: 16px 20px; border-radius: 10px; margin: 0 0 24px; text-align: center; font-size: 15px; line-height: 1.5; font-family: Georgia, \'Times New Roman\', serif; }
 		.lprq__callout strong { font-weight: 700; }
@@ -476,7 +480,7 @@ class SLRQ_Quiz {
 							'<div class="lprq__product-name">' + p.name + '</div>' +
 							'<div class="lprq__product-scent">' + p.scent + '</div>' +
 							'<div class="lprq__product-blurb">' + p.blurb + '</div>' +
-							'<a class="lprq__product-link" href="' + p.shop_url + '" rel="nofollow">Get ' + p.name + '\u00a0&rarr;</a>' +
+							'<a class="lprq__product-link" href="' + p.shop_url + '" rel="nofollow">Add to my routine\u00a0&rarr;</a>' +
 						'</div>' +
 					'</div>';
 			}
@@ -486,7 +490,7 @@ class SLRQ_Quiz {
 				if (!slot || !p) return;
 				slot.innerHTML =
 					'<span class="lprq__pairs-note-label">Pairs well with</span>' +
-					'<a href="' + p.shop_url + '" rel="nofollow" class="lprq__pairs-link">' + (p.image_url ? '<img class="lprq__pairs-thumb" src="' + p.image_url + '" alt="' + p.name + '" loading="lazy" width="48" height="48" />' : '') + '<span>' + p.name + (p.scent ? ' (' + p.scent + ')' : '') + '\u00a0&rarr;</span></a>';
+					'<a href="' + p.shop_url + '" rel="nofollow" class="lprq__pairs-link">' + (p.image_url ? '<img class="lprq__pairs-thumb" src="' + p.image_url + '" alt="' + p.name + '" loading="lazy" width="48" height="48" />' : '') + '<span class="lprq__pairs-text"><strong>' + p.name + '</strong><span class="lprq__pairs-cta">Add to routine\u00a0&rarr;</span></span></a>';
 			}
 
 			// Resume quiz from a recent saved state (within 24h)

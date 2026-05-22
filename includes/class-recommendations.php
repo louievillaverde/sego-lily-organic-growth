@@ -97,7 +97,7 @@ class SLRQ_Recommendations {
 			'mandarin-orange'   => 'Mandarin Orange',
 			'cardamom-primrose' => 'Cardamom Primrose',
 			'cherry'            => 'Cherry',
-			'unscented'         => 'Unscented (Baby and Mom safe)',
+			'unscented'         => 'Unscented',
 		);
 		// Unscented is sold as a separate WC product (baby-mom-pure-butter), not a
 		// scent variation of renewal-tallow-butter. Route accordingly.
