@@ -114,7 +114,7 @@ class SLRQ_Quiz {
 		.lprq__loading { text-align: center; padding: 80px 20px; color: #8A9499; font-size: 16px; font-style: italic; }
 		.lprq__results { text-align: center; }
 
-		.lprq__results-heading { font-size: 32px; font-weight: 600; margin: 0 0 4px; color: #2C2C2C; line-height: 1.3; font-family: Georgia, 'Times New Roman', serif; }
+		.lprq__results-heading { font-size: 32px; font-weight: 600; margin: 0 0 2px !important; color: #2C2C2C; line-height: 1.3; font-family: Georgia, 'Times New Roman', serif; }
 		.lprq__credibility { text-align: center; font-size: 11px; color: #8A9499; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin: -10px 0 22px; padding: 10px 16px; border-top: 1px solid #E8E2D6; border-bottom: 1px solid #E8E2D6; }
 		.lprq__testimonial { margin: 28px 0 24px; }
 		.lprq__testimonial blockquote { background: #FAFAF7; border-left: 3px solid #B8A98C; padding: 18px 22px; margin: 0; font-style: italic; color: #4a5d68; font-size: 15px; line-height: 1.6; border-radius: 0 8px 8px 0; }
@@ -160,7 +160,7 @@ class SLRQ_Quiz {
 		.lprq__reassurance { font-size: 14px; color: #628393; margin: 16px 0 0; text-align: center; line-height: 1.5; }
 		.lprq__signoff { font-size: 15px; color: #628393; font-style: italic; margin-top: 28px; }
 
-		.lprq__diagnostic { font-size: 14.5px; color: #628393; font-style: italic; line-height: 1.5; margin: 0 auto 36px; text-align: center; max-width: 480px; text-wrap: balance; }
+		.lprq__diagnostic { font-size: 14.5px; color: #628393; font-style: italic; line-height: 1.45; margin: 0 auto 44px !important; padding: 0 !important; text-align: center; max-width: 480px; text-wrap: balance; }
 		.lprq__diagnostic:empty { display: none; }
 
 		.lprq__product-name-link { color: inherit; text-decoration: none; border-bottom: 1px dotted transparent; transition: border-color 0.15s ease; }
