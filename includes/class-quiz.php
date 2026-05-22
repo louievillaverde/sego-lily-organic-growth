@@ -122,19 +122,19 @@ class SLRQ_Quiz {
 		.lprq__primary-product .lprq__product-image { width: 200px; min-width: 200px; aspect-ratio: 1; background: #F7F6F3; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #B8A98C; font-size: 13px; overflow: hidden; margin: 0; }
 		.lprq__primary-product .lprq__product-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
 		.lprq__primary-product .lprq__product-body { flex: 1; }
-		.lprq__primary-product .lprq__product-label { display: inline-block; font-size: 11px; color: #ffffff; background: #386174; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin: 0 0 12px; padding: 4px 10px; border-radius: 4px; }
+		.lprq__primary-product .lprq__product-label { display: inline-block; font-size: 10px; color: #8A9499; background: transparent; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; margin: 0 0 8px; padding: 0; border: none; }
 		.lprq__primary-product .lprq__product-name { font-size: 24px; font-weight: 600; margin: 0 0 8px; color: #2C2C2C; line-height: 1.25; font-family: Georgia, 'Times New Roman', serif; }
 		.lprq__primary-product .lprq__product-scent { font-size: 15px; color: #8A9499; margin: 0 0 20px; font-style: italic; }
 		.lprq__primary-product .lprq__product-blurb { font-size: 15px; color: #4a5d68; line-height: 1.6; margin: 0 0 28px; }
-		.lprq__primary-product .lprq__product-link { display: inline-block; padding: 13px 22px; font-size: 15px; font-weight: 600; background: #386174; color: #ffffff !important; text-decoration: none; border-radius: 8px; transition: all 0.15s ease; letter-spacing: 0.3px; }
-		.lprq__primary-product .lprq__product-link:hover { background: #2a4a5a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(56, 97, 116, 0.25); }
+		.lprq__primary-product .lprq__product-link { display: inline-block; padding: 16px 30px; font-size: 16px; font-weight: 700; background: #386174; color: #ffffff !important; text-decoration: none; border-radius: 8px; transition: all 0.15s ease; letter-spacing: 0.4px; box-shadow: 0 4px 14px rgba(56, 97, 116, 0.28); }
+		.lprq__primary-product .lprq__product-link:hover { background: #2a4a5a; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(56, 97, 116, 0.35); }
 		.lprq__pairs-note { font-size: 15px; color: #4a5d68; text-align: center; margin: 0 0 32px; padding: 18px 22px; background: #FAFAF7; border-radius: 10px; line-height: 1.5; font-family: Georgia, 'Times New Roman', serif; border: 1px solid #E8E2D6; }
 		.lprq__pairs-note-label { display: block; font-size: 11px; color: #8A9499; letter-spacing: 2px; text-transform: uppercase; margin: 0 0 10px; font-weight: 600; }
 		.lprq__pairs-link { display: inline-flex; align-items: center; gap: 14px; color: #386174 !important; font-weight: 600; text-decoration: none; padding: 10px 14px; border-radius: 8px; transition: background 0.15s ease; max-width: 100%; }
 		.lprq__pairs-link:hover { background: #ffffff; }
 		.lprq__pairs-text { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
 		.lprq__pairs-text strong { font-weight: 600; color: #2C2C2C; font-size: 15px; line-height: 1.3; }
-		.lprq__pairs-cta { font-size: 13px; color: #386174; text-decoration: underline; text-underline-offset: 3px; font-weight: 600; }
+		.lprq__pairs-cta { font-size: 13px; color: #628393; text-decoration: underline; text-underline-offset: 3px; font-weight: 400; letter-spacing: normal; }
 		.lprq__pairs-thumb { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #ffffff; border: 1px solid #E8E2D6; }
 		.lprq__pairs-add-both { display: block; margin: 14px auto 0; padding: 11px 18px; background: #386174; color: #ffffff !important; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; text-align: center; letter-spacing: 0.3px; transition: all 0.15s ease; max-width: 280px; }
 		.lprq__pairs-add-both:hover { background: #2a4a5a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(56, 97, 116, 0.2); }
@@ -492,7 +492,7 @@ class SLRQ_Quiz {
 				if (!slot || !p) return;
 				slot.innerHTML =
 					'<span class="lprq__pairs-note-label">Pairs well with</span>' +
-					'<a href="' + p.shop_url + '" rel="nofollow" class="lprq__pairs-link">' + (p.image_url ? '<img class="lprq__pairs-thumb" src="' + p.image_url + '" alt="' + p.name + '" loading="lazy" width="48" height="48" />' : '') + '<span class="lprq__pairs-text"><strong>' + p.name + '</strong><span class="lprq__pairs-cta">Get ' + p.name + '\u00a0&rarr;</span></span></a>';
+					'<a href="' + p.shop_url + '" rel="nofollow" class="lprq__pairs-link">' + (p.image_url ? '<img class="lprq__pairs-thumb" src="' + p.image_url + '" alt="' + p.name + '" loading="lazy" width="48" height="48" />' : '') + '<span class="lprq__pairs-text"><strong>' + p.name + '</strong><span class="lprq__pairs-cta">View &rarr;</span></span></a>';
 			}
 
 			// Resume quiz from a recent saved state (within 24h)
