@@ -3,7 +3,7 @@
  * Plugin Name:       Routine Quiz
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-routine-quiz
  * Description:       Five-question quiz that captures retail leads, syncs to Mautic with tags, and shows each customer a 2-product recommendation from the Sego Lily line. Lives at /your-routine, auto-created on activation.
- * Version:           1.13.8
+ * Version:           1.13.9
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.13.8' );
+define( 'SLRQ_VERSION', '1.13.9' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -214,3 +214,32 @@ add_action( 'wp_loaded', function() {
 	exit;
 }, 20 );
 
+/**
+ * Per-skin-concern testimonials, pulled from real verified customer reviews
+ * on segolilyskincare.com (WP comments / WC reviews, retrieved 2026-05-22).
+ * Each quote is trimmed for length but stays in the customer's own words.
+ */
+add_filter( 'lprq_testimonial_for_concern', function( $existing, $skin_concern ) {
+	if ( ! empty( $existing ) ) {
+		return $existing;
+	}
+	$quotes = array(
+		'Wrinkles & dark spots' => array(
+			'quote'       => 'Five months in, my skin has never looked better. More even-toned, very soft. It&rsquo;s replaced both my eye cream and my moisturizer.',
+			'attribution' => 'Trish P., 5 months in',
+		),
+		'Dryness & tightness' => array(
+			'quote'       => 'I&rsquo;d tried lotions, exfoliants, pedicures. Nothing helped my cracked heels. One week of daily tallow and they were healed up.',
+			'attribution' => 'Shannon, verified customer',
+		),
+		'Redness & sensitivity' => array(
+			'quote'       => 'We use it for poison ivy rash. The conventional cream left our skin dry and itchy. Sego Lily tallow stops the itch and moisturizes.',
+			'attribution' => 'Jackie S., Michigan',
+		),
+		'Breakouts' => array(
+			'quote'       => 'I&rsquo;d tried everything for acne, including prescriptions. Since switching to the tallow it&rsquo;s drastically cleared my skin, texture and scarring too.',
+			'attribution' => 'Chloe, verified customer',
+		),
+	);
+	return $quotes[ $skin_concern ] ?? null;
+}, 10, 2 );
