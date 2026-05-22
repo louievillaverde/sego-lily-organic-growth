@@ -285,9 +285,8 @@ class SLRQ_Recommendations {
 	 */
 	public static function add_routine_url( $p_slug, $p_scent, $s_slug, $s_scent ) {
 		if ( empty( $p_slug ) || empty( $s_slug ) ) {
-			return home_url( '/shop-all/' );
+			return home_url( '/shop-all/?cta_id=add_both' );
 		}
-		// Strip the internal scent prefix ('ageless-honey-creme' -> just 'honey-creme')
 		$p_wc_slug = self::wc_slug_for( $p_slug );
 		$s_wc_slug = self::wc_slug_for( $s_slug );
 		return add_query_arg(
@@ -297,6 +296,7 @@ class SLRQ_Recommendations {
 				'p_scent'     => $p_scent,
 				's_slug'      => $s_wc_slug,
 				's_scent'     => $s_scent,
+				'cta_id'      => 'add_both',
 			),
 			home_url( '/' )
 		);
@@ -394,17 +394,20 @@ class SLRQ_Recommendations {
 	}
 
 	/**
-	 * Single-product direct-cart URL.
+	 * Single-product direct-cart URL. Carries cta_id=primary so the
+	 * post-redirect /cart/ URL can show which CTA drove the conversion
+	 * in analytics.
 	 */
 	public static function add_one_url( $wc_slug, $scent = '' ) {
 		if ( empty( $wc_slug ) ) {
-			return home_url( '/shop-all/' );
+			return home_url( '/shop-all/?cta_id=primary' );
 		}
 		return add_query_arg(
 			array(
 				'slrq_action' => 'add_one',
 				'slug'        => $wc_slug,
 				'scent'       => $scent,
+				'cta_id'      => 'primary',
 			),
 			home_url( '/' )
 		);

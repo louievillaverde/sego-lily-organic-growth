@@ -253,7 +253,7 @@ class SLRQ_Quiz {
 							<div id="lprq-result-primary"></div>
 							<div class="lprq__testimonial" id="lprq-result-testimonial"></div>
 							<div class="lprq__pairs-note" id="lprq-result-pairs"></div>
-							<div class="lprq__shop-all"><a href="<?php echo esc_url( home_url( '/shop-all/' ) ); ?>">Or shop the full line &rarr;</a></div>
+							<div class="lprq__shop-all"><a class="lprq__cta-track" data-cta-id="shop_all" href="<?php echo esc_url( add_query_arg( 'cta_id', 'shop_all', home_url( '/shop-all/' ) ) ); ?>">Or shop the full line &rarr;</a></div>
 							<?php
 							$callout = apply_filters( 'lprq_results_callout', '' );
 							if ( ! empty( $callout ) ) {
@@ -521,7 +521,7 @@ class SLRQ_Quiz {
 							'<div class="lprq__product-name">' + p.name + ' ' + badgeHtml + '</div>' +
 							'<div class="lprq__product-scent">' + p.scent + '</div>' +
 							'<div class="lprq__product-blurb">' + p.blurb + '</div>' +
-							'<a class="lprq__product-link" href="' + cartUrl + '" rel="nofollow">Build my routine\u00a0&rarr;</a>' +
+							'<a class="lprq__product-link lprq__cta-track" data-cta-id="primary" data-product="' + (p.slug || '') + '" href="' + cartUrl + '" rel="nofollow">Build my routine\u00a0&rarr;</a>' +
 						'</div>' +
 					'</div>';
 			}
@@ -531,7 +531,7 @@ class SLRQ_Quiz {
 				if (!slot || !p) return;
 				var addBothHtml = '';
 				if (window.lprqAddBothUrl) {
-					addBothHtml = '<a class="lprq__add-both" href="' + window.lprqAddBothUrl + '" rel="nofollow">Add both to my routine\u00a0&rarr;</a>';
+					addBothHtml = '<a class="lprq__add-both lprq__cta-track" data-cta-id="add_both" href="' + window.lprqAddBothUrl + '" rel="nofollow">Add both to my routine\u00a0&rarr;</a>';
 				}
 				var badgeHtml = p.badge ? '<span class="lprq__product-badge lprq__product-badge--small">' + p.badge + '</span>' : '';
 				var pairsContent =
@@ -547,6 +547,25 @@ class SLRQ_Quiz {
 					addBothHtml;
 				slot.innerHTML = pairsContent;
 			}
+
+			// Per-CTA tracking on results-page actions. Fires a gtag event
+			// before the link navigates (works because gtag is async but the
+			// browser still sends the beacon before unload). Falls back silently
+			// if gtag isn't loaded.
+			document.addEventListener('click', function(e) {
+				var link = e.target.closest && e.target.closest('.lprq__cta-track');
+				if (!link) return;
+				var ctaId   = link.getAttribute('data-cta-id') || 'unknown';
+				var product = link.getAttribute('data-product') || '';
+				if (typeof gtag === 'function') {
+					gtag('event', 'quiz_cta_click', {
+						cta_id: ctaId,
+						product_slug: product,
+						skin_concern: quizData.skin_concern || '',
+						frustration: quizData.frustration || ''
+					});
+				}
+			});
 
 			// Resume quiz from a recent saved state (within 24h)
 			var resumeStep = restoreProgress();
