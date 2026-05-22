@@ -28,19 +28,30 @@ class SLRQ_Recommendations {
 	public static function pair_for( $skin_concern, $frustration = '', $product_count = '', $firstname = '' ) {
 		$default = self::default_pair( $skin_concern, $frustration, $product_count, $firstname );
 
-		// If Moxie is the secondary, rewrite the "why" text so it references
-		// Moxie instead of Renewal Mandarin Orange (the canonical secondary).
-		// Quick + safe template approach — replace the strong-tag mention.
-		if ( ( $default['secondary']['slug'] ?? '' ) === 'moxie-bourbon-coffee' || strpos( $default['secondary']['slug'] ?? '', 'moxie-' ) === 0 ) {
+		// If Moxie is the secondary, rewrite the "why" text so the SECONDARY
+		// product mention becomes Moxie. The secondary differs by skin
+		// concern path (per default_pair's switch):
+		//   - Wrinkles default secondary = Renewal Mandarin Orange
+		//   - Dryness default secondary  = Ageless Honey Creme (so primary stays Renewal)
+		//   - Breakouts default secondary = Ageless Honey Creme (so primary stays Renewal)
+		//   - Default fallback secondary = Renewal Mandarin Orange
+		// Swap the right product per path, leave the primary mention intact.
+		if ( strpos( $default['secondary']['slug'] ?? '', 'moxie-' ) === 0 ) {
+			switch ( $skin_concern ) {
+				case 'Dryness & tightness':
+				case 'Breakouts':
+					$swap_from = 'Ageless Honey Creme';
+					break;
+				case 'Wrinkles & dark spots':
+				default:
+					$swap_from = 'Renewal Mandarin Orange';
+					break;
+			}
 			$default['why'] = str_replace(
-				array(
-					'<strong>Renewal Mandarin Orange</strong>',
-					'Renewal Mandarin Orange',
-				),
+				array( '<strong>' . $swap_from . '</strong>', $swap_from ),
 				'<strong>Moxie Intensive Moisture</strong>',
 				$default['why']
 			);
-			// Append a "for him" framing line so the swap reads intentional.
 			$default['why'] .= ' <em>(Holly built Moxie for thicker skin and beard areas with the same tallow base as the rest of the line.)</em>';
 		}
 
