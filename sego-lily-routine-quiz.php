@@ -3,7 +3,7 @@
  * Plugin Name:       Routine Quiz
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-routine-quiz
  * Description:       Five-question quiz that captures retail leads, syncs to Mautic with tags, and shows each customer a 2-product recommendation from the Sego Lily line. Lives at /your-routine, auto-created on activation.
- * Version:           1.13.19
+ * Version:           1.13.20
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.13.19' );
+define( 'SLRQ_VERSION', '1.13.20' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -232,7 +232,7 @@ add_filter( 'lprq_testimonial_for_concern', function( $existing, $skin_concern )
 	$quotes = array(
 		'Wrinkles & dark spots' => array(
 			'quote'       => 'Five months in, my skin has never looked better. More even-toned, very soft. It&rsquo;s replaced both my eye cream and my moisturizer.',
-			'attribution' => 'Trish P., 5 months in',
+			'attribution' => 'Trish P, 5 months in',
 		),
 		'Dryness & tightness' => array(
 			'quote'       => 'I&rsquo;d tried lotions, exfoliants, pedicures. Nothing helped my cracked heels. One week of daily tallow and they were healed up.',
