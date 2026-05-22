@@ -253,7 +253,7 @@ class SLRQ_Quiz {
 							<div id="lprq-result-primary"></div>
 							<div class="lprq__testimonial" id="lprq-result-testimonial"></div>
 							<div class="lprq__pairs-note" id="lprq-result-pairs"></div>
-							<div class="lprq__shop-all"><a href="<?php echo esc_url( home_url( '/shop/' ) ); ?>">Or shop the full line &rarr;</a></div>
+							<div class="lprq__shop-all"><a href="<?php echo esc_url( home_url( '/shop-all/' ) ); ?>">Or shop the full line &rarr;</a></div>
 							<?php
 							$callout = apply_filters( 'lprq_results_callout', '' );
 							if ( ! empty( $callout ) ) {

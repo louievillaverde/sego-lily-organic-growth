@@ -285,7 +285,7 @@ class SLRQ_Recommendations {
 	 */
 	public static function add_routine_url( $p_slug, $p_scent, $s_slug, $s_scent ) {
 		if ( empty( $p_slug ) || empty( $s_slug ) ) {
-			return home_url( '/shop/' );
+			return home_url( '/shop-all/' );
 		}
 		// Strip the internal scent prefix ('ageless-honey-creme' -> just 'honey-creme')
 		$p_wc_slug = self::wc_slug_for( $p_slug );
@@ -398,7 +398,7 @@ class SLRQ_Recommendations {
 	 */
 	public static function add_one_url( $wc_slug, $scent = '' ) {
 		if ( empty( $wc_slug ) ) {
-			return home_url( '/shop/' );
+			return home_url( '/shop-all/' );
 		}
 		return add_query_arg(
 			array(
