@@ -27,8 +27,15 @@ class SLRQ_Recommendations {
 	 */
 	public static function pair_for( $skin_concern, $frustration = '', $product_count = '' ) {
 		$default = self::default_pair( $skin_concern, $frustration, $product_count );
-		// add_both_url removed in v1.13.0 — Holly's variable-subscription
-		// products don't support multi-product URL cart-add.
+		// Build add_both_url with primary + secondary slugs + scents so the
+		// slrq_action endpoint can look up variation IDs and add both products
+		// in one click. Routes through /?slrq_action=add_routine.
+		$default['add_both_url'] = self::add_routine_url(
+			$default['primary']['slug'] ?? '',
+			$default['primary']['scent'] ?? '',
+			$default['secondary']['slug'] ?? '',
+			$default['secondary']['scent'] ?? ''
+		);
 		return apply_filters( 'lprq_recommendation', $default, $skin_concern, $frustration );
 	}
 
@@ -241,14 +248,48 @@ class SLRQ_Recommendations {
 	}
 
 	/**
-	 * "Add both" link — for variable products this can't add to cart in one
-	 * shot (variations require attribute selection). For now this just links
-	 * to the primary product PDP. When clients have simple products, this
-	 * can route through the slrq_action=add_routine endpoint instead.
+	 * Build "Add both to routine" URL. Routes through the slrq_action endpoint
+	 * in sego-lily-routine-quiz.php, which looks up the right variation IDs
+	 * by scent (default size = 2 oz, default payment = One-Time Purchase) and
+	 * adds both to the cart in one request, then redirects to /cart/.
 	 *
-	 * @deprecated v1.13.0  Kept for backward compatibility with v1.10-v1.12.
+	 * URL pattern:
+	 *   /?slrq_action=add_routine&p_slug=...&p_scent=...&s_slug=...&s_scent=...
 	 */
-	public static function add_routine_url( $primary_id, $secondary_id ) {
-		return home_url( '/shop/' );
+	public static function add_routine_url( $p_slug, $p_scent, $s_slug, $s_scent ) {
+		if ( empty( $p_slug ) || empty( $s_slug ) ) {
+			return home_url( '/shop/' );
+		}
+		// Strip the internal scent prefix ('ageless-honey-creme' -> just 'honey-creme')
+		$p_wc_slug = self::wc_slug_for( $p_slug );
+		$s_wc_slug = self::wc_slug_for( $s_slug );
+		return add_query_arg(
+			array(
+				'slrq_action' => 'add_routine',
+				'p_slug'      => $p_wc_slug,
+				'p_scent'     => $p_scent,
+				's_slug'      => $s_wc_slug,
+				's_scent'     => $s_scent,
+			),
+			home_url( '/' )
+		);
+	}
+
+	/**
+	 * Map internal recommendation slug -> WC product slug.
+	 * Internal slugs are like 'ageless-honey-creme', 'renewal-unscented'.
+	 * WC product slugs are the parent product, e.g. 'ageless-tallow-butter'.
+	 */
+	private static function wc_slug_for( $internal_slug ) {
+		if ( strpos( $internal_slug, 'ageless-' ) === 0 ) {
+			return 'ageless-tallow-butter';
+		}
+		if ( $internal_slug === 'renewal-unscented' ) {
+			return 'baby-mom-pure-butter';
+		}
+		if ( strpos( $internal_slug, 'renewal-' ) === 0 ) {
+			return 'renewal-tallow-butter';
+		}
+		return $internal_slug;
 	}
 }

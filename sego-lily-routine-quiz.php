@@ -3,7 +3,7 @@
  * Plugin Name:       Routine Quiz
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-routine-quiz
  * Description:       Five-question quiz that captures retail leads, syncs to Mautic with tags, and shows each customer a 2-product recommendation from the Sego Lily line. Lives at /your-routine, auto-created on activation.
- * Version:           1.13.4
+ * Version:           1.13.5
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.13.4' );
+define( 'SLRQ_VERSION', '1.13.5' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -124,17 +124,64 @@ add_action( 'wp_loaded', function() {
 	if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
 		return;
 	}
-	$primary   = isset( $_GET['p'] ) ? (int) $_GET['p'] : 0;
-	$secondary = isset( $_GET['s'] ) ? (int) $_GET['s'] : 0;
-	$added     = false;
-	if ( $primary > 0 ) {
-		$added = WC()->cart->add_to_cart( $primary ) || $added;
+
+	$items = array(
+		array(
+			'slug'  => isset( $_GET['p_slug'] ) ? sanitize_text_field( wp_unslash( $_GET['p_slug'] ) ) : '',
+			'scent' => isset( $_GET['p_scent'] ) ? sanitize_text_field( wp_unslash( $_GET['p_scent'] ) ) : '',
+		),
+		array(
+			'slug'  => isset( $_GET['s_slug'] ) ? sanitize_text_field( wp_unslash( $_GET['s_slug'] ) ) : '',
+			'scent' => isset( $_GET['s_scent'] ) ? sanitize_text_field( wp_unslash( $_GET['s_scent'] ) ) : '',
+		),
+	);
+
+	$added = false;
+	foreach ( $items as $item ) {
+		if ( empty( $item['slug'] ) ) {
+			continue;
+		}
+		$post = get_page_by_path( $item['slug'], OBJECT, 'product' );
+		if ( ! $post ) {
+			continue;
+		}
+		$product = wc_get_product( $post->ID );
+		if ( ! $product ) {
+			continue;
+		}
+
+		if ( $product->is_type( 'simple' ) || $product->is_type( 'subscription' ) ) {
+			if ( WC()->cart->add_to_cart( $product->get_id() ) ) {
+				$added = true;
+			}
+			continue;
+		}
+
+		// Variable / variable-subscription product: find the variation matching
+		// scent + default size (2 oz.) + default payment (One-Time Purchase).
+		if ( $product->is_type( 'variable' ) || $product->is_type( 'variable-subscription' ) ) {
+			$variation_id   = 0;
+			$matched_attrs  = array();
+			$target_scent   = $item['scent'];
+			$target_size    = '2 oz.';
+			$target_payment = 'One-Time Purchase';
+			foreach ( $product->get_available_variations() as $v ) {
+				$attrs = $v['attributes'] ?? array();
+				$scent_match   = empty( $target_scent ) || ( isset( $attrs['attribute_scent'] ) && strcasecmp( $attrs['attribute_scent'], $target_scent ) === 0 );
+				$size_match    = ! isset( $attrs['attribute_size'] ) || strcasecmp( $attrs['attribute_size'], $target_size ) === 0;
+				$payment_match = ! isset( $attrs['attribute_payment-options'] ) || stripos( $attrs['attribute_payment-options'], 'one-time' ) !== false;
+				if ( $scent_match && $size_match && $payment_match ) {
+					$variation_id  = $v['variation_id'];
+					$matched_attrs = $attrs;
+					break;
+				}
+			}
+			if ( $variation_id && WC()->cart->add_to_cart( $product->get_id(), 1, $variation_id, $matched_attrs ) ) {
+				$added = true;
+			}
+		}
 	}
-	if ( $secondary > 0 && $secondary !== $primary ) {
-		$added = WC()->cart->add_to_cart( $secondary ) || $added;
-	}
-	// Persist cart state explicitly so the cart page sees the additions
-	// on the next request.
+
 	if ( $added ) {
 		WC()->cart->calculate_totals();
 		if ( method_exists( WC()->cart, 'set_session' ) ) {
