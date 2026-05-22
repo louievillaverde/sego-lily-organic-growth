@@ -3,7 +3,7 @@
  * Plugin Name:       Routine Quiz
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-routine-quiz
  * Description:       Five-question quiz that captures retail leads, syncs to Mautic with tags, and shows each customer a 2-product recommendation from the Sego Lily line. Lives at /your-routine, auto-created on activation.
- * Version:           1.13.2
+ * Version:           1.13.3
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.13.2' );
+define( 'SLRQ_VERSION', '1.13.3' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -56,22 +56,30 @@ add_filter( 'lprq_signoff', function() {
 } );
 
 /**
- * Memorial Day 2026 free-shipping callout on the quiz results screen.
- * Renders only during the active offer window (Mountain Time):
- *   Sun 2026-05-24 09:00 MT  through  Tue 2026-05-26 23:59 MT
- * Schedule shifted +1 day from the original Thu 5/21 plan because the
- * campaign launched Fri 5/22; offer extends through Tuesday to align.
+ * Memorial Day 2026 free-shipping callout — two phase narrative:
+ *   Phase 1: Sun 5/24 09:00 MT → Mon 5/25 23:59 MT
+ *     "Free shipping through Monday midnight" (offer reads as Memorial Day weekend close)
+ *   Phase 2: Tue 5/26 00:00 MT → Tue 5/26 23:59 MT
+ *     "Extended through tonight" (surprise extension on Tuesday)
+ *
+ * Monday positions as last day so customers feel real urgency. Tuesday morning
+ * the surprise extension framing kicks in for the late-converters.
  */
 add_filter( 'lprq_results_callout', function( $existing ) {
 	if ( ! empty( $existing ) ) {
 		return $existing;
 	}
-	$mt          = new DateTimeZone( 'America/Denver' );
-	$now         = new DateTime( 'now', $mt );
-	$offer_start = new DateTime( '2026-05-24 09:00', $mt );
-	$offer_end   = new DateTime( '2026-05-26 23:59', $mt );
-	if ( $now >= $offer_start && $now <= $offer_end ) {
-		return '<strong>Free shipping through Tuesday midnight.</strong><br/>No minimum. Every order. Memorial Day weekend, extended.';
+	$mt           = new DateTimeZone( 'America/Denver' );
+	$now          = new DateTime( 'now', $mt );
+	$phase1_start = new DateTime( '2026-05-24 09:00', $mt );
+	$phase1_end   = new DateTime( '2026-05-25 23:59', $mt );
+	$phase2_start = new DateTime( '2026-05-26 00:00', $mt );
+	$phase2_end   = new DateTime( '2026-05-26 23:59', $mt );
+	if ( $now >= $phase1_start && $now <= $phase1_end ) {
+		return '<strong>Free shipping through Monday midnight.</strong><br/>No minimum. Every order. Memorial Day weekend only.';
+	}
+	if ( $now >= $phase2_start && $now <= $phase2_end ) {
+		return '<strong>Extended through tonight.</strong><br/>Free shipping until midnight Mountain Time. Surprise extra day.';
 	}
 	return '';
 } );
