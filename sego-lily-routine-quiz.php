@@ -3,7 +3,7 @@
  * Plugin Name:       Routine Quiz
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-routine-quiz
  * Description:       Five-question quiz that captures retail leads, syncs to Mautic with tags, and shows each customer a 2-product recommendation from the Sego Lily line. Lives at /your-routine, auto-created on activation.
- * Version:           1.13.26
+ * Version:           1.13.27
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.13.26' );
+define( 'SLRQ_VERSION', '1.13.27' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -54,6 +54,73 @@ function slrq_activate() {
 add_filter( 'lprq_signoff', function() {
 	return 'Holly';
 } );
+
+/**
+ * SEO + social meta tags for the quiz page. Injected into wp_head when the
+ * current post contains the [lp_routine_quiz] shortcode. Covers the basics:
+ * title, description, Open Graph (Facebook, LinkedIn, SMS preview cards on
+ * iMessage / WhatsApp), and Twitter card. All values filterable so the
+ * plugin can be reused on other client sites without forking.
+ *
+ * SEO plugins (Yoast, RankMath, AIOSEO) override these automatically when
+ * the page has its own SEO settings configured. This is the no-SEO-plugin
+ * fallback so shared links don't pull the site's default home-page image
+ * + title.
+ */
+add_action( 'wp_head', function() {
+	if ( ! is_singular() ) return;
+	global $post;
+	if ( ! $post || ! is_a( $post, 'WP_Post' ) ) return;
+	if ( ! has_shortcode( $post->post_content, 'lp_routine_quiz' ) ) return;
+
+	$title = apply_filters( 'lprq_meta_title',
+		'Build Your Sego Lily Routine | Free 2-Minute Quiz'
+	);
+	$description = apply_filters( 'lprq_meta_description',
+		'Take Holly\'s 2-minute skin quiz and get a matched 2-product tallow routine. Five food-grade ingredients, made by hand in Montana.'
+	);
+	$image = apply_filters( 'lprq_og_image',
+		'https://segolilyskincare.com/wp-content/uploads/2026/01/ageless_honey_1x-1-600x600.webp'
+	);
+	$url   = apply_filters( 'lprq_canonical_url', get_permalink( $post->ID ) );
+
+	$image_width  = apply_filters( 'lprq_og_image_width',  600 );
+	$image_height = apply_filters( 'lprq_og_image_height', 600 );
+
+	echo "\n<!-- Routine Quiz SEO -->\n";
+	echo '<meta name="description" content="' . esc_attr( $description ) . '" />' . "\n";
+	echo '<link rel="canonical" href="' . esc_url( $url ) . '" />' . "\n";
+
+	echo '<meta property="og:type" content="website" />' . "\n";
+	echo '<meta property="og:site_name" content="' . esc_attr( get_bloginfo( 'name' ) ) . '" />' . "\n";
+	echo '<meta property="og:title" content="' . esc_attr( $title ) . '" />' . "\n";
+	echo '<meta property="og:description" content="' . esc_attr( $description ) . '" />' . "\n";
+	echo '<meta property="og:url" content="' . esc_url( $url ) . '" />' . "\n";
+	echo '<meta property="og:image" content="' . esc_url( $image ) . '" />' . "\n";
+	echo '<meta property="og:image:width" content="' . esc_attr( $image_width ) . '" />' . "\n";
+	echo '<meta property="og:image:height" content="' . esc_attr( $image_height ) . '" />' . "\n";
+
+	echo '<meta name="twitter:card" content="summary_large_image" />' . "\n";
+	echo '<meta name="twitter:title" content="' . esc_attr( $title ) . '" />' . "\n";
+	echo '<meta name="twitter:description" content="' . esc_attr( $description ) . '" />' . "\n";
+	echo '<meta name="twitter:image" content="' . esc_url( $image ) . '" />' . "\n";
+	echo "<!-- /Routine Quiz SEO -->\n";
+}, 1 );
+
+/**
+ * Filter the document <title> on the quiz page so the browser tab + search
+ * engine snippet reads cleanly. Runs at priority 99 so any SEO plugin can
+ * still override.
+ */
+add_filter( 'pre_get_document_title', function( $title ) {
+	if ( ! is_singular() ) return $title;
+	global $post;
+	if ( ! $post || ! is_a( $post, 'WP_Post' ) ) return $title;
+	if ( ! has_shortcode( $post->post_content, 'lp_routine_quiz' ) ) return $title;
+	return apply_filters( 'lprq_meta_title',
+		'Build Your Sego Lily Routine | Free 2-Minute Quiz'
+	);
+}, 99 );
 
 /**
  * Memorial Day 2026 free-shipping callout — two phase narrative:
