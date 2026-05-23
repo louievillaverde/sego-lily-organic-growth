@@ -36,17 +36,13 @@ class SLRQ_Recommendations {
 		//   - Breakouts default secondary = Ageless Honey Creme (so primary stays Renewal)
 		//   - Default fallback secondary = Renewal Mandarin Orange
 		// Swap the right product per path, leave the primary mention intact.
+		// All three non-sensitivity paths now use Ageless Honey Creme as the
+		// secondary (night-time) product, so the swap target is always Ageless
+		// when Moxie is recommended. The Wrinkles path used to use Renewal as
+		// the secondary, but that was reversed (Renewal is the AM vitamin-C
+		// product); fixed in default_pair.
 		if ( strpos( $default['secondary']['slug'] ?? '', 'moxie-' ) === 0 ) {
-			switch ( $skin_concern ) {
-				case 'Dryness & tightness':
-				case 'Breakouts':
-					$swap_from = 'Ageless Honey Creme';
-					break;
-				case 'Wrinkles & dark spots':
-				default:
-					$swap_from = 'Renewal Mandarin Orange';
-					break;
-			}
+			$swap_from = 'Ageless Honey Creme';
 			$default['why'] = str_replace(
 				array( '<strong>' . $swap_from . '</strong>', $swap_from ),
 				'<strong>Moxie Intensive Moisture</strong>',
@@ -153,9 +149,15 @@ class SLRQ_Recommendations {
 		switch ( $skin_concern ) {
 
 			case 'Wrinkles & dark spots':
+				// Renewal Mandarin Orange = primary (morning): vitamin C from
+				// mandarin essential oil, lighter texture, absorbs in ~30 sec.
+				// Ageless Honey Creme = secondary (night): denser, raw honey
+				// for humectant pull during overnight repair.
+				// (Previously had Ageless as primary, which was reversed; lighter
+				// vitamin-C-bearing Renewal is the AM product on this path.)
 				return array(
-					'primary'   => self::ageless( 'honey-creme' ),
-					'secondary' => $is_male ? self::moxie() : self::renewal( 'mandarin-orange' ),
+					'primary'   => self::renewal( 'mandarin-orange' ),
+					'secondary' => $is_male ? self::moxie() : self::ageless( 'honey-creme' ),
 					'why'       => $why,
 				);
 
@@ -201,10 +203,10 @@ class SLRQ_Recommendations {
 	private static function why_for( $skin_concern, $frustration, $product_count = '' ) {
 		$map = array(
 			'Wrinkles & dark spots' => array(
-				'Nothing works long enough'   => 'Most anti-aging creams work for a few weeks then quit on you, and it usually has nothing to do with the brand. The issue is that they&rsquo;re built around stabilized actives your skin doesn&rsquo;t actually recognize, so the moment you stop applying, your skin slides back because it still doesn&rsquo;t have what it actually needs. <strong>Ageless Honey Creme</strong> is whipped tallow plus raw honey and propolis, structurally identical to the lipids your skin used to make on its own, and the honey adds the humectant pull that keeps moisture in the rebuilding layer instead of evaporating off. <strong>Renewal Mandarin Orange</strong> at night brings in mandarin essential oil, a natural source of vitamin C that supports the collagen your barrier needs to firm back up, so you&rsquo;re rebuilding twice, once during the day and once overnight.',
-				'Too many products'           => 'Most anti-aging routines are five or six products fighting the same biological problem with five or six different actives, and your skin gets confused trying to recognize all of them at once. The simpler answer is to replace the actual lipids your skin stopped producing, instead of layering things that try to mimic them. <strong>Ageless Honey Creme</strong> in the morning gives you whipped tallow plus raw honey for the humectant pull, which keeps moisture sealed into the barrier through the day. <strong>Renewal Mandarin Orange</strong> at night adds mandarin essential oil, a natural source of vitamin C that helps collagen rebuild while your skin does its overnight repair work.',
-				"Don't trust ingredients"     => 'Most anti-aging products list fifteen or more ingredients on the back of the jar, and at least half are solvents, stabilizers, and synthetic actives your skin doesn&rsquo;t recognize. <strong>Ageless Honey Creme</strong> has six ingredients you would recognize in a kitchen: grass-fed tallow, raw honey, olive oil, beeswax, vitamin E, and a touch of essential oil, all of which your skin reads as its own lipids. <strong>Renewal Mandarin Orange</strong> uses the same clean profile (five ingredients, no honey but with mandarin essential oil for vitamin C) so layering them at night doesn&rsquo;t introduce a single thing your skin can&rsquo;t read.',
-				'Just want something simple'  => 'The whole anti-aging story is simpler than the industry makes it sound, because your skin made the lipids that kept it firm and now it doesn&rsquo;t, and the job of a good product is to put those lipids back. <strong>Ageless Honey Creme</strong> in the morning gives you whipped tallow plus raw honey, which is what handles the daytime barrier repair. <strong>Renewal Mandarin Orange</strong> at night layers in mandarin essential oil for the overnight collagen support your skin needs while it does its repair cycle, two jars, two specific jobs.',
+				'Nothing works long enough'   => 'Most anti-aging creams work for a few weeks then quit on you, and it usually has nothing to do with the brand. The issue is that they&rsquo;re built around stabilized actives your skin doesn&rsquo;t actually recognize, so the moment you stop applying, your skin slides back because it still doesn&rsquo;t have what it actually needs. <strong>Renewal Mandarin Orange</strong> is whipped tallow plus mandarin essential oil, a natural source of vitamin C that brightens through the day and protects against the oxidative damage that drives fine lines. Same job a vitamin C serum does, in a clean tallow base your skin recognizes. <strong>Ageless Honey Creme</strong> at night does the deeper repair work, a denser formula with raw honey and propolis pulling humectant moisture into the rebuilding layer while your skin rebuilds collagen overnight.',
+				'Too many products'           => 'Most anti-aging routines are five or six products fighting the same biological problem with five or six different actives, and your skin gets confused trying to recognize all of them at once. The simpler answer is to replace the actual lipids your skin stopped producing. <strong>Renewal Mandarin Orange</strong> in the morning gives you whipped tallow with mandarin essential oil for vitamin C antioxidant protection, light enough to wear under makeup and absorbs in about thirty seconds. <strong>Ageless Honey Creme</strong> at night is the deeper rebuild, denser tallow with raw honey for the humectant pull while your skin does its overnight collagen work.',
+				"Don't trust ingredients"     => 'Most anti-aging products list fifteen or more ingredients on the back of the jar, and at least half are solvents, stabilizers, and synthetic actives your skin doesn&rsquo;t recognize. <strong>Renewal Mandarin Orange</strong> has five ingredients (whipped grass-fed tallow, olive oil, mandarin essential oil, beeswax, vitamin E) and your skin reads all five as lipids it can use. <strong>Ageless Honey Creme</strong> at night uses six on the same clean profile, with raw honey and propolis added for the overnight humectant pull, all food-grade.',
+				'Just want something simple'  => 'The whole anti-aging story is simpler than the industry makes it sound, because your skin made the lipids that kept it firm and now it doesn&rsquo;t, and the job of a good product is to put those lipids back. <strong>Renewal Mandarin Orange</strong> in the morning gives you whipped tallow with mandarin essential oil for daytime antioxidant protection, absorbs in about thirty seconds. <strong>Ageless Honey Creme</strong> at night is the deeper repair, denser tallow with raw honey for the humectant pull while your skin rebuilds collagen overnight, two jars, two specific jobs.',
 			),
 			'Dryness & tightness' => array(
 				'Nothing works long enough'   => 'Most moisturizers wear off in a few hours because they&rsquo;re built mostly on water, and water evaporates off your skin instead of soaking in, which is why you keep reapplying. <strong>Renewal Mandarin Orange</strong> is whipped tallow that absorbs in about thirty seconds and delivers the saturated fats your skin actually uses to seal water in, holding moisture for about eight hours instead of one. <strong>Ageless Honey Creme</strong> at night is denser, with raw honey and propolis added, which pull humectant moisture into the barrier overnight when your skin loses about twenty percent of its water through TEWL, the layer that keeps you from waking up tight.',
