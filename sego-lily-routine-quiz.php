@@ -3,7 +3,7 @@
  * Plugin Name:       Routine Quiz
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-routine-quiz
  * Description:       Five-question quiz that captures retail leads, syncs to Mautic with tags, and shows each customer a 2-product recommendation from the Sego Lily line. Lives at /your-routine, auto-created on activation.
- * Version:           1.13.37
+ * Version:           1.13.38
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.13.37' );
+define( 'SLRQ_VERSION', '1.13.38' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -134,25 +134,58 @@ add_action( 'wp_head', function() {
 	@media (max-width: 600px) {
 		.woocommerce-cart .entry-content { padding: 16px 12px 36px; }
 		.woocommerce-cart .shop_table thead { display: none; }
-		.woocommerce-cart .shop_table tbody tr { display: block; margin-bottom: 14px; padding: 22px 18px; background: #F7F6F3; border: 1px solid #E8E2D6; border-radius: 12px; }
-		.woocommerce-cart .shop_table tbody td { display: flex; justify-content: space-between; align-items: center; text-align: right; padding: 10px 0 !important; border-bottom: 1px dashed #E8E2D6 !important; }
-		.woocommerce-cart .shop_table tbody td:last-child { border-bottom: none !important; }
-		.woocommerce-cart .shop_table tbody td:before { content: attr(data-title); font-weight: 700; color: #8A9499; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; text-align: left; flex: 0 0 auto; }
-		/* Product image: force visible block layout with explicit min-height
-		   so the image slot doesn't collapse to a blank gap if WC Subs
-		   markup changes its DOM. img force-shown above the rest of the row. */
-		.woocommerce-cart .shop_table tbody td.product-thumbnail { display: block !important; text-align: center !important; min-height: 140px; padding: 8px 0 16px !important; border-bottom: 1px dashed #E8E2D6 !important; }
-		.woocommerce-cart .shop_table tbody td.product-thumbnail:before { content: '' !important; display: none !important; }
-		.woocommerce-cart .shop_table tbody td.product-thumbnail img,
-		.woocommerce-cart .shop_table tbody td.product-thumbnail a img,
-		.woocommerce-cart .shop_table tbody td.product-thumbnail .attachment-woocommerce_thumbnail { display: block !important; visibility: visible !important; max-width: 140px !important; width: 140px !important; height: auto !important; margin: 0 auto !important; border-radius: 10px; }
+		/* Card styling SCOPED to product rows only (.cart_item). The cart_totals
+		   table (Subtotal / Shipping / Total) doesn't get the boxed-card
+		   treatment so its internal shipping radios + change-address link
+		   render with standard WC layout, not the data-title flex pattern. */
+		.woocommerce-cart .shop_table tbody tr.cart_item { display: block; margin-bottom: 14px; padding: 22px 18px; background: #F7F6F3; border: 1px solid #E8E2D6; border-radius: 12px; }
+		.woocommerce-cart .shop_table tbody tr.cart_item td { display: flex; justify-content: space-between; align-items: center; text-align: right; padding: 10px 0 !important; border-bottom: none !important; }
+		.woocommerce-cart .shop_table tbody tr.cart_item td:before { content: attr(data-title); font-weight: 700; color: #8A9499; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; text-align: left; flex: 0 0 auto; }
+		/* Product image: force visible block layout with explicit min-height. */
+		.woocommerce-cart .shop_table tbody tr.cart_item td.product-thumbnail { display: block !important; text-align: center !important; min-height: 140px; padding: 8px 0 16px !important; border-bottom: none !important; }
+		.woocommerce-cart .shop_table tbody tr.cart_item td.product-thumbnail:before { content: '' !important; display: none !important; }
+		.woocommerce-cart .shop_table tbody tr.cart_item td.product-thumbnail img,
+		.woocommerce-cart .shop_table tbody tr.cart_item td.product-thumbnail a img,
+		.woocommerce-cart .shop_table tbody tr.cart_item td.product-thumbnail .attachment-woocommerce_thumbnail { display: block !important; visibility: visible !important; max-width: 140px !important; width: 140px !important; height: auto !important; margin: 0 auto !important; border-radius: 10px; }
 		.woocommerce-cart .shop_table tbody tr.cart_item td.actions { border-bottom: none !important; display: block; }
 		.woocommerce-cart .coupon { flex-direction: column; align-items: stretch; }
 		.woocommerce-cart .coupon input[name="coupon_code"] { min-width: 0; width: 100%; }
 		.woocommerce-cart .button[name="apply_coupon"],
 		.woocommerce-cart .button[name="update_cart"] { width: 100%; letter-spacing: 0.3px !important; }
 		.woocommerce-cart .cart_totals { padding: 20px; }
+		/* Cart totals rows -- shipping, subtotal, total -- keep standard
+		   table-row layout. No nested cards, no data-title flex. */
+		.woocommerce-cart .cart_totals .shop_table tbody tr { display: table-row !important; background: transparent !important; border: none !important; padding: 0 !important; margin: 0 !important; }
+		.woocommerce-cart .cart_totals .shop_table tbody td { display: table-cell !important; padding: 12px 0 !important; border-bottom: 1px solid #E8E2D6 !important; }
+		.woocommerce-cart .cart_totals .shop_table tbody td:before { content: none !important; }
+		/* Shipping options: radio + label left-aligned, no flex-space-between. */
+		.woocommerce-cart .cart_totals #shipping_method,
+		.woocommerce-cart .cart_totals .woocommerce-shipping-methods { list-style: none; padding: 0; margin: 0 0 12px; }
+		.woocommerce-cart .cart_totals #shipping_method li,
+		.woocommerce-cart .cart_totals .woocommerce-shipping-methods li { display: flex; align-items: center; gap: 8px; padding: 4px 0; text-align: left; margin: 0; }
+		.woocommerce-cart .cart_totals #shipping_method li input[type="radio"] { margin: 0; flex-shrink: 0; }
+		.woocommerce-cart .cart_totals #shipping_method li label { margin: 0; flex: 1; text-align: left; font-weight: 500; }
+		.woocommerce-cart .cart_totals .woocommerce-shipping-destination { margin: 8px 0 6px; font-size: 13px; color: #4a5d68; }
+		/* Brand the "Change address" / shipping-calculator link teal. */
+		.woocommerce-cart .cart_totals .shipping-calculator-button,
+		.woocommerce-cart .cart_totals .shipping-calculator-button-toggle { color: #386174 !important; text-decoration: underline; font-size: 13px; }
+		/* Hide WC Subs "Initial Shipment:" header text on one-time-leaning
+		   carts -- "Shipping" reads cleaner for retail customers who didn't
+		   pick a subscription variation. */
+		.woocommerce-cart .cart_totals tr.shipping th,
+		.woocommerce-cart .cart_totals tr.recurring-total th { font-size: 0 !important; }
+		.woocommerce-cart .cart_totals tr.shipping th:before,
+		.woocommerce-cart .cart_totals tr.recurring-total th:before { content: 'Shipping'; font-size: 12px !important; font-weight: 600; color: #4a5d68; text-transform: uppercase; letter-spacing: 1px; }
 	}
+
+	/* Hide coupon description inline beside the code in WC Checkout Block /
+	   classic checkout / cart totals. Customer should see just "FREESHIPPING",
+	   not "FREESHIPPINGFree shipping coupon" jammed together. */
+	.wc-block-components-totals-coupon-summary__chip-description,
+	.wc-block-components-totals-coupon-summary__description,
+	.wc-block-coupon-code-applied__description,
+	.cart-discount .description,
+	.coupon-description { display: none !important; }
 	</style>
 	<script>
 	(function() {
@@ -323,6 +356,34 @@ add_filter( 'woocommerce_cart_totals_coupon_label', function( $label, $coupon ) 
 	}
 	return $label;
 }, 10, 2 );
+
+/**
+ * Strip the coupon description from the WC Checkout Block applied-coupons
+ * display. Without this, the block UI renders "FREESHIPPINGFree shipping
+ * coupon" as a single chip (the code in bold followed inline by the
+ * description). Filtering the post_excerpt to empty during cart/checkout
+ * rendering makes the block show only the code.
+ *
+ * Scoped to coupons applied to the cart so admin Coupons screen and other
+ * contexts still show the description for editing.
+ */
+add_filter( 'get_post_metadata', function( $metavalue, $object_id, $meta_key ) {
+	if ( $meta_key !== 'description' ) return $metavalue;
+	// only filter on frontend cart/checkout contexts
+	if ( ! function_exists( 'WC' ) || ! WC()->cart ) return $metavalue;
+	if ( is_admin() && ! defined( 'DOING_AJAX' ) ) return $metavalue;
+	$post = get_post( $object_id );
+	if ( ! $post || $post->post_type !== 'shop_coupon' ) return $metavalue;
+	return '';
+}, 10, 3 );
+
+add_filter( 'the_excerpt', function( $excerpt ) {
+	if ( ! function_exists( 'WC' ) || ! WC()->cart ) return $excerpt;
+	if ( is_admin() && ! defined( 'DOING_AJAX' ) ) return $excerpt;
+	$post = get_post();
+	if ( $post && $post->post_type === 'shop_coupon' ) return '';
+	return $excerpt;
+}, 10, 1 );
 
 add_action( 'template_redirect', function() {
 	if ( is_admin() && ! defined( 'DOING_AJAX' ) ) return;
