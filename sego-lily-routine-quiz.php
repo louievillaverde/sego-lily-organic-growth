@@ -3,7 +3,7 @@
  * Plugin Name:       Routine Quiz
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-routine-quiz
  * Description:       Five-question quiz that captures retail leads, syncs to Mautic with tags, and shows each customer a 2-product recommendation from the Sego Lily line. Lives at /your-routine, auto-created on activation.
- * Version:           1.13.31
+ * Version:           1.13.32
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.13.31' );
+define( 'SLRQ_VERSION', '1.13.32' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -201,6 +201,36 @@ add_filter( 'pre_get_document_title', function( $title ) {
 		'Build Your Sego Lily Routine | Free 2-Minute Quiz'
 	);
 }, 99 );
+
+/**
+ * Auto-apply the FREESHIPPING coupon during the Memorial Day window so
+ * customers don&rsquo;t have to type a code. Matches the announced offer
+ * window (Sat 5/23 9am MT through Tue 5/26 11:59pm MT including the
+ * Tuesday surprise extension). Outside that window, the hook does nothing.
+ *
+ * Fires on woocommerce_before_calculate_totals which runs on cart +
+ * checkout, plus on cart-add (so the coupon is applied the moment they
+ * land on the cart from the quiz). Uses $cart->has_discount() to avoid
+ * double-applying.
+ */
+add_action( 'woocommerce_before_calculate_totals', function( $cart ) {
+	if ( is_admin() && ! defined( 'DOING_AJAX' ) ) return;
+	if ( ! function_exists( 'WC' ) || ! WC()->cart ) return;
+	if ( ! $cart || ! is_object( $cart ) ) return;
+
+	$mt    = new DateTimeZone( 'America/Denver' );
+	$now   = new DateTime( 'now', $mt );
+	$start = new DateTime( '2026-05-23 09:00', $mt );
+	$end   = new DateTime( '2026-05-26 23:59', $mt );
+	if ( $now < $start || $now > $end ) return;
+
+	$code = apply_filters( 'lprq_auto_coupon_code', 'freeshipping' );
+	if ( empty( $code ) ) return;
+	if ( method_exists( $cart, 'has_discount' ) && $cart->has_discount( $code ) ) return;
+	if ( method_exists( $cart, 'apply_coupon' ) ) {
+		$cart->apply_coupon( $code );
+	}
+}, 10, 1 );
 
 /**
  * Memorial Day 2026 free-shipping callout. Two-phase narrative matching
