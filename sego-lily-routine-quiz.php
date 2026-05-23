@@ -3,7 +3,7 @@
  * Plugin Name:       Routine Quiz
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-routine-quiz
  * Description:       Five-question quiz that captures retail leads, syncs to Mautic with tags, and shows each customer a 2-product recommendation from the Sego Lily line. Lives at /your-routine, auto-created on activation.
- * Version:           1.13.28
+ * Version:           1.13.29
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.13.28' );
+define( 'SLRQ_VERSION', '1.13.29' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -54,6 +54,86 @@ function slrq_activate() {
 add_filter( 'lprq_signoff', function() {
 	return 'Holly';
 } );
+
+/**
+ * Cart page styling. Only fires on the cart page so it doesn't bleed
+ * into the rest of the theme. Targets the classic [woocommerce_cart]
+ * shortcode markup (LV swapped the WC Cart Block for the shortcode on
+ * 2026-05-22 because the block was broken on mobile).
+ *
+ * On-brand colors (teal #386174 + cream #F7F6F3) match the quiz
+ * results page so the post-quiz flow feels continuous. Mobile breakpoint
+ * converts the table to stacked cards so phone customers actually see
+ * the cart contents without horizontal scroll.
+ */
+add_action( 'wp_head', function() {
+	if ( ! function_exists( 'is_cart' ) || ! is_cart() ) return;
+	?>
+	<style>
+	/* Sego Lily cart page styling (injected by routine quiz plugin) */
+	.woocommerce-cart .entry-content { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+	.woocommerce-cart .woocommerce { font-family: Georgia, 'Times New Roman', serif; }
+	.woocommerce-cart .woocommerce-notices-wrapper { max-width: 760px; margin: 0 auto 16px; }
+
+	.woocommerce-cart .shop_table { border: none; margin-bottom: 28px; width: 100%; border-collapse: collapse; background: #ffffff; }
+	.woocommerce-cart .shop_table th { background: #F7F6F3; color: #2C2C2C; font-family: Georgia, 'Times New Roman', serif; font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; padding: 14px 16px; border: none; border-bottom: 1px solid #E8E2D6; text-align: left; font-weight: 700; }
+	.woocommerce-cart .shop_table td { padding: 16px; border-bottom: 1px solid #E8E2D6; vertical-align: middle; background: #ffffff; }
+	.woocommerce-cart .shop_table .product-thumbnail img { max-width: 84px; height: auto; border-radius: 10px; }
+	.woocommerce-cart .shop_table .product-name { font-weight: 600; color: #2C2C2C; }
+	.woocommerce-cart .shop_table .product-name a { color: #386174; text-decoration: none; }
+	.woocommerce-cart .shop_table .product-name a:hover { color: #2a4a5a; text-decoration: underline; }
+	.woocommerce-cart .shop_table .variation { font-size: 13px; color: #8A9499; margin-top: 4px; }
+	.woocommerce-cart .shop_table .variation dd { margin: 0; }
+	.woocommerce-cart .shop_table .product-price,
+	.woocommerce-cart .shop_table .product-subtotal { color: #2C2C2C; font-weight: 600; }
+	.woocommerce-cart .shop_table .product-remove a { color: #B8A98C !important; font-size: 22px; text-decoration: none; line-height: 1; display: inline-block; }
+	.woocommerce-cart .shop_table .product-remove a:hover { color: #c0392b !important; }
+	.woocommerce-cart .quantity .qty { width: 64px; padding: 10px; text-align: center; border: 1px solid #B8A98C; border-radius: 6px; font-size: 15px; background: #ffffff; }
+
+	.woocommerce-cart .coupon { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 18px 0 24px; }
+	.woocommerce-cart .coupon label { color: #4a5d68; font-size: 14px; margin-right: 8px; }
+	.woocommerce-cart .coupon input[name="coupon_code"] { padding: 10px 14px; border: 1px solid #B8A98C; border-radius: 6px; font-size: 15px; flex: 1; min-width: 180px; background: #ffffff; }
+	.woocommerce-cart .button[name="apply_coupon"],
+	.woocommerce-cart .button[name="update_cart"] { background: transparent !important; border: 1px solid #386174 !important; color: #386174 !important; padding: 10px 18px !important; font-family: Georgia, 'Times New Roman', serif !important; font-size: 14px; border-radius: 6px; cursor: pointer; transition: all 0.15s ease; font-weight: 600; }
+	.woocommerce-cart .button[name="apply_coupon"]:hover,
+	.woocommerce-cart .button[name="update_cart"]:hover { background: #386174 !important; color: #ffffff !important; }
+
+	.woocommerce-cart .cart-collaterals,
+	.woocommerce-cart .cart_totals { background: #F7F6F3; padding: 28px; border-radius: 12px; border: 1px solid #E8E2D6; margin-top: 28px; }
+	.woocommerce-cart .cart_totals h2 { font-family: Georgia, 'Times New Roman', serif; font-size: 22px; color: #2C2C2C; margin: 0 0 18px; font-weight: 600; }
+	.woocommerce-cart .cart_totals table { width: 100%; background: transparent; border-collapse: collapse; }
+	.woocommerce-cart .cart_totals th,
+	.woocommerce-cart .cart_totals td { padding: 12px 0 !important; border-bottom: 1px solid #E8E2D6 !important; background: transparent !important; }
+	.woocommerce-cart .cart_totals th { color: #4a5d68; font-weight: 600; font-family: Georgia, 'Times New Roman', serif; text-align: left; }
+	.woocommerce-cart .cart_totals .order-total .amount { font-size: 22px; color: #2C2C2C; font-weight: 700; }
+	.woocommerce-cart .cart_totals tr:last-child th,
+	.woocommerce-cart .cart_totals tr:last-child td { border-bottom: none !important; }
+
+	.woocommerce-cart .wc-proceed-to-checkout { margin-top: 22px; padding: 0 !important; }
+	.woocommerce-cart .checkout-button,
+	.woocommerce-cart a.checkout-button { display: block !important; width: 100% !important; padding: 16px 24px !important; background: #386174 !important; color: #ffffff !important; text-align: center !important; border-radius: 8px !important; font-family: Georgia, 'Times New Roman', serif !important; font-size: 16px !important; font-weight: 700 !important; text-decoration: none !important; box-shadow: 0 4px 14px rgba(56, 97, 116, 0.28) !important; transition: all 0.15s ease !important; letter-spacing: 0.4px !important; box-sizing: border-box !important; border: none !important; }
+	.woocommerce-cart .checkout-button:hover { background: #2a4a5a !important; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(56, 97, 116, 0.35) !important; }
+
+	@media (max-width: 600px) {
+		.woocommerce-cart .entry-content { padding: 16px 12px 36px; }
+		.woocommerce-cart .shop_table thead { display: none; }
+		.woocommerce-cart .shop_table tbody tr { display: block; margin-bottom: 14px; padding: 14px; background: #ffffff; border: 1px solid #E8E2D6; border-radius: 12px; }
+		.woocommerce-cart .shop_table tbody td { display: flex; justify-content: space-between; align-items: center; text-align: right; padding: 8px 0 !important; border-bottom: 1px dashed #E8E2D6 !important; }
+		.woocommerce-cart .shop_table tbody td:last-child { border-bottom: none !important; }
+		.woocommerce-cart .shop_table tbody td:before { content: attr(data-title); font-weight: 700; color: #8A9499; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; text-align: left; flex: 0 0 auto; }
+		.woocommerce-cart .shop_table tbody td.product-thumbnail { justify-content: center; }
+		.woocommerce-cart .shop_table tbody td.product-thumbnail:before { content: ''; }
+		.woocommerce-cart .shop_table tbody td.product-thumbnail img { max-width: 140px; margin: 0 auto; }
+		.woocommerce-cart .shop_table tbody tr.cart_item td.actions { border-bottom: none !important; display: block; }
+		.woocommerce-cart .coupon { flex-direction: column; align-items: stretch; }
+		.woocommerce-cart .coupon input[name="coupon_code"] { min-width: 0; width: 100%; }
+		.woocommerce-cart .button[name="apply_coupon"],
+		.woocommerce-cart .button[name="update_cart"] { width: 100%; }
+		.woocommerce-cart .cart_totals { padding: 20px; }
+	}
+	</style>
+	<?php
+}, 100 );
 
 /**
  * SEO + social meta tags for the quiz page. Injected into wp_head when the
