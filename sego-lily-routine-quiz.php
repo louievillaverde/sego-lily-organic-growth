@@ -3,7 +3,7 @@
  * Plugin Name:       Routine Quiz
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-routine-quiz
  * Description:       Five-question quiz that captures retail leads, syncs to Mautic with tags, and shows each customer a 2-product recommendation from the Sego Lily line. Lives at /your-routine, auto-created on activation.
- * Version:           1.13.43
+ * Version:           1.13.44
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.13.43' );
+define( 'SLRQ_VERSION', '1.13.44' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -210,12 +210,13 @@ add_action( 'wp_head', function() {
 		.woocommerce-cart .shop_table tbody tr.cart_item td.actions { padding: 0 !important; }
 		.woocommerce-cart .shop_table tbody tr.cart_item td.actions:before { content: '' !important; display: none !important; }
 		/* Coupon + Update Cart row (NOT a cart_item, separate TR with td.actions
-		   that contains the coupon code form + update button). Style as its
-		   own card matching the product cards, with margin separating it
-		   from the card above. */
-		.woocommerce-cart .shop_table tbody tr:not(.cart_item) { display: block !important; margin-top: 20px !important; margin-bottom: 16px !important; padding: 22px 18px !important; background: #F7F6F3 !important; border: 1px solid #E8E2D6 !important; border-radius: 12px !important; }
-		.woocommerce-cart .shop_table tbody tr:not(.cart_item) td { display: block !important; padding: 0 !important; border: none !important; background: transparent !important; }
-		.woocommerce-cart .shop_table tbody tr:not(.cart_item) td:before { content: '' !important; display: none !important; }
+		   that contains the coupon code form + update button). SCOPED to
+		   the woocommerce-cart-form shop_table so it does NOT hit the
+		   cart_totals shop_table inside .cart-collaterals (which has its
+		   own TRs for subtotal/shipping/total that should stay flat). */
+		.woocommerce-cart .woocommerce-cart-form .shop_table tbody tr:not(.cart_item) { display: block !important; margin-top: 20px !important; margin-bottom: 16px !important; padding: 22px 18px !important; background: #F7F6F3 !important; border: 1px solid #E8E2D6 !important; border-radius: 12px !important; }
+		.woocommerce-cart .woocommerce-cart-form .shop_table tbody tr:not(.cart_item) td { display: block !important; padding: 0 !important; border: none !important; background: transparent !important; }
+		.woocommerce-cart .woocommerce-cart-form .shop_table tbody tr:not(.cart_item) td:before { content: '' !important; display: none !important; }
 		.woocommerce-cart .coupon { flex-direction: column; align-items: stretch; }
 		.woocommerce-cart .coupon input[name="coupon_code"] { min-width: 0; width: 100%; }
 		.woocommerce-cart .button[name="apply_coupon"],
@@ -226,14 +227,24 @@ add_action( 'wp_head', function() {
 		.woocommerce-cart .cart_totals td { width: 55% !important; }
 	}
 
-	/* Hide coupon description inline beside the code in WC Checkout Block /
-	   classic checkout / cart totals. Customer should see just "FREESHIPPING",
-	   not "FREESHIPPINGFree shipping coupon" jammed together. */
+	/* Hide coupon description / WC default "Free shipping coupon" label
+	   inline beside the code in WC Checkout Block, classic checkout, and
+	   cart totals. Customer should see just "FREESHIPPING", not
+	   "FREESHIPPINGFree shipping coupon" jammed together. Covers many
+	   class variations across WC versions. */
 	.wc-block-components-totals-coupon-summary__chip-description,
+	.wc-block-components-totals-coupon-summary__chip-discount,
 	.wc-block-components-totals-coupon-summary__description,
 	.wc-block-coupon-code-applied__description,
 	.cart-discount .description,
-	.coupon-description { display: none !important; }
+	.coupon-description,
+	.wc-block-components-totals-coupon__discount-rate { display: none !important; }
+	/* WC Block coupon summary chip layout fallback: if our description
+	   selectors miss but the chip still has multiple text spans, hide
+	   anything after the first child. */
+	.wc-block-components-totals-coupon-summary__chip > *:not(.wc-block-components-totals-coupon-summary__chip-code):not(.wc-block-components-chip__remove):not(button) {
+		display: none !important;
+	}
 	</style>
 	<script>
 	(function() {
@@ -397,12 +408,47 @@ add_action( 'wp_loaded', function() {
  * the coupon description (e.g., "Free shipping coupon") in the cart /
  * checkout totals applied-coupons list. Cleaner UX: customer sees the
  * actual code that's active.
+ *
+ * WC core hardcodes "Free shipping coupon" for free_shipping type
+ * coupons in wc_cart_totals_coupon_label() regardless of the coupon's
+ * description field. This filter overrides that to the actual code.
  */
 add_filter( 'woocommerce_cart_totals_coupon_label', function( $label, $coupon ) {
 	if ( is_object( $coupon ) && method_exists( $coupon, 'get_code' ) ) {
 		return strtoupper( $coupon->get_code() );
 	}
 	return $label;
+}, 10, 2 );
+
+/**
+ * WC Checkout Block + Store API uses a different label generation path
+ * that doesn't go through wc_cart_totals_coupon_label. Override the
+ * label at the Store API serialization level by filtering the cart
+ * coupon schema response.
+ */
+add_filter( 'woocommerce_store_api_cart_coupon_data', function( $data, $coupon_code ) {
+	if ( is_array( $data ) ) {
+		$data['label'] = strtoupper( $coupon_code );
+		$data['description'] = '';
+	} elseif ( is_object( $data ) ) {
+		$data->label = strtoupper( $coupon_code );
+		$data->description = '';
+	}
+	return $data;
+}, 10, 2 );
+
+/**
+ * WC core also generates the discount-amount HTML for the cart row.
+ * Strip the description from there too so the row reads cleanly.
+ */
+add_filter( 'woocommerce_cart_totals_coupon_html', function( $html, $coupon ) {
+	if ( is_object( $coupon ) && method_exists( $coupon, 'get_code' ) ) {
+		// Default WC builds: [Remove] link wrapped in HTML. Replace any
+		// "Free shipping coupon" text with empty.
+		$html = str_replace( 'Free shipping coupon', '', $html );
+		$html = str_replace( 'free shipping coupon', '', $html );
+	}
+	return $html;
 }, 10, 2 );
 
 /**
