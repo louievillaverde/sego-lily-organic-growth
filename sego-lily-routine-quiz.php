@@ -3,7 +3,7 @@
  * Plugin Name:       Routine Quiz
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-routine-quiz
  * Description:       Five-question quiz that captures retail leads, syncs to Mautic with tags, and shows each customer a 2-product recommendation from the Sego Lily line. Lives at /your-routine, auto-created on activation.
- * Version:           1.13.48
+ * Version:           1.13.49
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.13.48' );
+define( 'SLRQ_VERSION', '1.13.49' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -85,55 +85,63 @@ add_filter( 'body_class', function( $classes ) {
  */
 add_action( 'wp_head', function() {
 	if ( ! function_exists( 'is_cart' ) || ! function_exists( 'is_checkout' ) ) return;
-	if ( ! is_cart() && ! is_checkout() ) return;
-	$is_checkout = is_checkout() && ! is_cart();
-	if ( $is_checkout ) {
-		// Checkout-only fixes: payment method icon alignment, applied
-		// coupon chip styling, etc.
-		?>
-		<style>
-		/* Vertical-align all payment method icons on the same baseline.
-		   AmEx default SVG/PNG has different aspect ratio than VISA + MC
-		   so it floats higher without explicit alignment. */
-		.woocommerce-checkout .wc-block-components-payment-method-icons,
-		.woocommerce-checkout .wc-block-components-payment-method-label__icons,
-		.woocommerce-checkout .payment-method__icons,
-		.woocommerce-checkout .wc-block-checkout__payment-method-icons { display: flex !important; align-items: center !important; gap: 6px !important; flex-wrap: wrap !important; }
-		.woocommerce-checkout .wc-block-components-payment-method-icons img,
-		.woocommerce-checkout .wc-block-components-payment-method-label__icons img,
-		.woocommerce-checkout .payment-method__icons img,
-		.woocommerce-checkout .wc-block-checkout__payment-method-icons img { display: block !important; vertical-align: middle !important; height: 24px !important; width: auto !important; max-width: none !important; object-fit: contain !important; margin: 0 !important; }
-		/* Hide non-selected shipping methods at checkout review. Three-layer
-		   approach: (a) :has() for modern browsers, (b) class-based for
-		   browsers without :has, (c) hide whole input wrapper for any
-		   non-selected method. */
-		.woocommerce-checkout .wc-block-components-shipping-rates-control__package-item:not(:has(input:checked)),
-		.woocommerce-checkout-review-order .shipping_method li:not(.shipping-method-selected):not(:has(input:checked)),
-		.woocommerce-checkout #shipping_method li:not(.shipping-method-selected):not(:has(input:checked)),
-		.woocommerce-checkout-review-order tr.shipping ul#shipping_method li:not(:has(input:checked)) { display: none !important; }
-		/* Aggressive fallback: hide any shipping method label whose
-		   adjacent input is NOT checked. Targets radio + label pairs
-		   where the label sibling follows the input. */
-		.woocommerce-checkout ul.shipping-methods li:not(:has(input:checked)),
-		.woocommerce-checkout .shipping_method_label:not(:has(+ input:checked)) { display: none !important; }
-		/* If above selectors miss, hide entire method list and rely on
-		   the totals line to show what shipping costs. */
-		.woocommerce-checkout-review-order .order-shipping-options-list,
-		.woocommerce-checkout .checkout-review-shipping-options { display: none !important; }
-		/* Privacy notice ("Your personal data...") spacing + font matching.
-		   16px top margin separates from preceding paragraph; no top
-		   padding (the margin alone is enough breathing room). */
-		.woocommerce-checkout .woocommerce-privacy-policy-text,
-		.woocommerce-checkout .wc-block-checkout__terms,
-		.woocommerce-checkout .wc-block-checkout-terms,
-		.woocommerce-checkout .privacy-policy,
-		.woocommerce-checkout p.privacy,
-		.woocommerce-checkout .woocommerce-terms-and-conditions-wrapper { margin-top: 16px !important; padding-top: 0 !important; font-size: 14px !important; line-height: 1.6 !important; color: #4a5d68 !important; }
-		.woocommerce-checkout .woocommerce-privacy-policy-text p,
-		.woocommerce-checkout .wc-block-checkout__terms p { font-size: 14px !important; line-height: 1.6 !important; margin: 0 0 10px !important; color: #4a5d68 !important; }
-		</style>
-		<?php
+	$on_wc_page = is_cart() || is_checkout();
+	// Fallback: Holly's site redirects /checkout/ -> /cart/ (page-id-8)
+	// where the Elementor + WooPay direct-checkout block renders the
+	// multi-step checkout INSIDE the cart page. is_checkout() returns
+	// false there. Detect via URL pattern as a backup.
+	if ( ! $on_wc_page ) {
+		$uri = $_SERVER['REQUEST_URI'] ?? '';
+		if ( preg_match( '#/(cart|checkout)(/|\?|$)#i', $uri ) ) $on_wc_page = true;
 	}
+	if ( ! $on_wc_page ) return;
+
+	// Checkout-style fixes load WITHOUT a woocommerce-checkout body-class
+	// prefix because Holly's site has only the woocommerce-cart body class
+	// even on the "checkout" view (Elementor + WooPay renders the multi-
+	// step checkout inside the cart page). Selectors target the WC Block
+	// component classes directly so they work regardless of body class.
+	?>
+	<style>
+	/* Vertical-align all payment method icons on the same baseline. */
+	.wc-block-components-payment-method-icons,
+	.wc-block-components-payment-method-label__icons,
+	.payment-method__icons,
+	.wc-block-checkout__payment-method-icons { display: flex !important; align-items: center !important; gap: 6px !important; flex-wrap: wrap !important; }
+	.wc-block-components-payment-method-icons img,
+	.wc-block-components-payment-method-label__icons img,
+	.payment-method__icons img,
+	.wc-block-checkout__payment-method-icons img { display: block !important; vertical-align: middle !important; height: 24px !important; width: auto !important; max-width: none !important; object-fit: contain !important; margin: 0 !important; }
+	/* Hide non-selected shipping methods at checkout review. */
+	.wc-block-components-shipping-rates-control__package-item:not(:has(input:checked)),
+	.woocommerce-checkout-review-order .shipping_method li:not(.shipping-method-selected):not(:has(input:checked)),
+	#shipping_method li:not(.shipping-method-selected):not(:has(input:checked)),
+	ul.shipping-methods li:not(:has(input:checked)) { display: none !important; }
+	/* Privacy notice ("Your personal data...") spacing + font matching. */
+	.woocommerce-privacy-policy-text,
+	.wc-block-checkout__terms,
+	.wc-block-checkout-terms,
+	.privacy-policy,
+	p.privacy,
+	.woocommerce-terms-and-conditions-wrapper { margin-top: 16px !important; padding-top: 0 !important; font-size: 14px !important; line-height: 1.6 !important; color: #4a5d68 !important; }
+	.woocommerce-privacy-policy-text p,
+	.wc-block-checkout__terms p { font-size: 14px !important; line-height: 1.6 !important; margin: 0 0 10px !important; color: #4a5d68 !important; }
+	/* WC Block coupon chip "FREESHIPPINGFree shipping coupon" inline join.
+	   Hide the description span next to the code chip. Multiple selector
+	   variants to catch WC Block / WooPay rendering differences. */
+	.wc-block-components-totals-coupon-summary__chip-description,
+	.wc-block-components-totals-coupon-summary__chip-discount,
+	.wc-block-components-totals-coupon-summary__description,
+	.wc-block-coupon-code-applied__description,
+	.wc-block-components-totals-coupon__discount-rate,
+	.wc-block-components-totals-coupon__remove-link { white-space: nowrap !important; }
+	.wc-block-components-totals-coupon-summary__chip-description,
+	.wc-block-components-totals-coupon-summary__chip-discount,
+	.wc-block-components-totals-coupon-summary__description,
+	.wc-block-coupon-code-applied__description,
+	.wc-block-components-totals-coupon__discount-rate { display: none !important; }
+	</style>
+	<?php
 	if ( ! is_cart() ) return;
 	?>
 	<style>
