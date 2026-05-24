@@ -3,7 +3,7 @@
  * Plugin Name:       Routine Quiz
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-routine-quiz
  * Description:       Five-question quiz that captures retail leads, syncs to Mautic with tags, and shows each customer a 2-product recommendation from the Sego Lily line. Lives at /your-routine, auto-created on activation.
- * Version:           1.13.40
+ * Version:           1.13.41
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.13.40' );
+define( 'SLRQ_VERSION', '1.13.41' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -92,9 +92,19 @@ add_action( 'wp_head', function() {
 	.woocommerce-cart .woocommerce { font-family: Georgia, 'Times New Roman', serif; }
 	.woocommerce-cart .woocommerce-notices-wrapper { max-width: 760px; margin: 0 auto 16px; }
 
-	.woocommerce-cart .shop_table { border: none; margin-bottom: 28px; width: 100%; border-collapse: collapse; background: transparent; }
-	.woocommerce-cart .shop_table th { background: transparent; color: #2C2C2C; font-family: Georgia, 'Times New Roman', serif; font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; padding: 14px 16px; border: none; border-bottom: 1px solid #E8E2D6; text-align: left; font-weight: 700; }
-	.woocommerce-cart .shop_table td { padding: 16px; border-bottom: 1px solid #E8E2D6; vertical-align: middle; background: transparent; }
+	/* Cart product table: no outer border, no row background, no
+	   table-level container styling. Each cart_item TR gets its own
+	   card via the mobile @media block below. Above 600px width,
+	   uses standard table layout. */
+	.woocommerce-cart .shop_table,
+	.woocommerce-cart .woocommerce-cart-form .shop_table { border: none !important; margin-bottom: 28px; width: 100%; border-collapse: separate !important; border-spacing: 0 !important; background: transparent !important; box-shadow: none !important; outline: none !important; }
+	.woocommerce-cart .shop_table th { background: transparent !important; color: #2C2C2C; font-family: Georgia, 'Times New Roman', serif; font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; padding: 14px 16px; border: none !important; border-bottom: 1px solid #E8E2D6 !important; text-align: left; font-weight: 700; }
+	.woocommerce-cart .shop_table td { padding: 16px; border: none !important; border-bottom: 1px solid #E8E2D6 !important; vertical-align: middle; background: transparent !important; }
+	/* Cart-page form wrapper resets so any theme-level form/section
+	   border doesn't add a wrapper outline around the cards. */
+	.woocommerce-cart .woocommerce { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+	.woocommerce-cart form.woocommerce-cart-form { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+	.woocommerce-cart .woocommerce-cart-form__contents { background: transparent !important; border: none !important; box-shadow: none !important; }
 	.woocommerce-cart .shop_table .product-thumbnail img { max-width: 84px; height: auto; border-radius: 10px; }
 	.woocommerce-cart .shop_table .product-name { font-weight: 600; color: #2C2C2C; }
 	.woocommerce-cart .shop_table .product-name a { color: #386174; text-decoration: none; }
@@ -116,11 +126,16 @@ add_action( 'wp_head', function() {
 	.woocommerce-cart .button[name="update_cart"]:hover { background: #386174 !important; color: #ffffff !important; }
 
 	.woocommerce-cart .cart-collaterals,
-	.woocommerce-cart .cart_totals { background: #F7F6F3; padding: 28px; border-radius: 12px; border: 1px solid #E8E2D6; margin-top: 28px; }
+	.woocommerce-cart .cart_totals { background: #F7F6F3 !important; padding: 32px 28px !important; border-radius: 12px !important; border: 1px solid #E8E2D6 !important; margin-top: 28px !important; box-shadow: none !important; }
 	.woocommerce-cart .cart_totals h2 { font-family: Georgia, 'Times New Roman', serif; font-size: 22px; color: #2C2C2C; margin: 0 0 18px; font-weight: 600; }
-	.woocommerce-cart .cart_totals table { width: 100%; background: transparent; border-collapse: collapse; }
+	.woocommerce-cart .cart_totals table { width: 100% !important; background: transparent !important; border-collapse: collapse !important; border: none !important; box-shadow: none !important; }
+	.woocommerce-cart .cart_totals table * { box-shadow: none !important; }
+	/* KILL all per-row borders inside cart_totals so no nested mini-boxes
+	   appear. Use only a single bottom-divider line between rows for
+	   readability, no row backgrounds or outlines. */
+	.woocommerce-cart .cart_totals tr { background: transparent !important; border: none !important; outline: none !important; box-shadow: none !important; }
 	.woocommerce-cart .cart_totals th,
-	.woocommerce-cart .cart_totals td { padding: 12px 0 !important; border-bottom: 1px solid #E8E2D6 !important; background: transparent !important; }
+	.woocommerce-cart .cart_totals td { padding: 14px 0 !important; border: none !important; border-bottom: 1px solid #E8E2D6 !important; background: transparent !important; box-shadow: none !important; outline: none !important; }
 	.woocommerce-cart .cart_totals th { color: #4a5d68; font-weight: 600; font-family: Georgia, 'Times New Roman', serif; text-align: left; }
 	.woocommerce-cart .cart_totals .order-total .amount { font-size: 22px; color: #2C2C2C; font-weight: 700; }
 	.woocommerce-cart .cart_totals tr:last-child th,
@@ -164,6 +179,13 @@ add_action( 'wp_head', function() {
 		.woocommerce-cart .shop_table tbody tr.cart_item td.product-subtotal { font-size: 18px !important; font-weight: 700 !important; color: #2C2C2C !important; }
 		.woocommerce-cart .shop_table tbody tr.cart_item td.actions { padding: 0 !important; }
 		.woocommerce-cart .shop_table tbody tr.cart_item td.actions:before { content: '' !important; display: none !important; }
+		/* Coupon + Update Cart row (NOT a cart_item, separate TR with td.actions
+		   that contains the coupon code form + update button). Style as its
+		   own card matching the product cards, with margin separating it
+		   from the card above. */
+		.woocommerce-cart .shop_table tbody tr:not(.cart_item) { display: block !important; margin-top: 20px !important; margin-bottom: 16px !important; padding: 22px 18px !important; background: #F7F6F3 !important; border: 1px solid #E8E2D6 !important; border-radius: 12px !important; }
+		.woocommerce-cart .shop_table tbody tr:not(.cart_item) td { display: block !important; padding: 0 !important; border: none !important; background: transparent !important; }
+		.woocommerce-cart .shop_table tbody tr:not(.cart_item) td:before { content: '' !important; display: none !important; }
 		.woocommerce-cart .coupon { flex-direction: column; align-items: stretch; }
 		.woocommerce-cart .coupon input[name="coupon_code"] { min-width: 0; width: 100%; }
 		.woocommerce-cart .button[name="apply_coupon"],
@@ -374,30 +396,39 @@ add_filter( 'woocommerce_cart_totals_coupon_label', function( $label, $coupon ) 
 }, 10, 2 );
 
 /**
- * One-shot: clear the FREESHIPPING coupon's post_excerpt (where WC stores
- * the "description") directly in the database. The filter-based approach
- * keeps missing code paths in custom themes and WC Store API responses;
- * clearing the source data is the only 100%-reliable fix. Idempotent via
- * the option flag so it only runs once per release version.
+ * Clear the FREESHIPPING coupon's post_excerpt (where WC stores the
+ * "description") directly in the database on EVERY init. The earlier
+ * one-shot-with-flag approach failed silently in v1.13.40 (flag was
+ * set but DB update didn't take). This version runs every page load:
+ * a single SQL query checks if the excerpt is set; if so, clears it.
+ * Negligible overhead per request.
  *
- * Customer was seeing "FREESHIPPING Free shipping coupon" jammed together
- * in the checkout coupon chip. After this runs, the description is empty
- * and no display path has anything to render.
+ * Resolves "FREESHIPPING Free shipping coupon" jammed together in the
+ * checkout coupon chip. Source-of-truth fix that beats every display
+ * code path (classic cart, WC Block, Store API REST, custom themes).
  */
-add_action( 'admin_init', function() {
-	$flag_key = 'lprq_freeshipping_excerpt_cleared_v1';
-	if ( get_option( $flag_key ) ) return;
+add_action( 'init', function() {
+	if ( ! function_exists( 'wc_get_coupon_id_from_code' ) ) return;
 	$coupon_codes = apply_filters( 'lprq_coupons_to_clear_description', array( 'freeshipping' ) );
+	global $wpdb;
 	foreach ( $coupon_codes as $code ) {
-		$post = get_page_by_path( $code, OBJECT, 'shop_coupon' );
-		if ( $post && ! empty( $post->post_excerpt ) ) {
-			wp_update_post( array(
-				'ID'           => $post->ID,
-				'post_excerpt' => '',
-			) );
+		$cid = wc_get_coupon_id_from_code( $code );
+		if ( ! $cid ) continue;
+		// One SQL UPDATE only if the field is non-empty (cheap)
+		$current = $wpdb->get_var( $wpdb->prepare(
+			"SELECT post_excerpt FROM {$wpdb->posts} WHERE ID = %d LIMIT 1", $cid
+		) );
+		if ( $current !== '' && $current !== null ) {
+			$wpdb->update(
+				$wpdb->posts,
+				array( 'post_excerpt' => '' ),
+				array( 'ID' => $cid ),
+				array( '%s' ),
+				array( '%d' )
+			);
+			clean_post_cache( $cid );
 		}
 	}
-	update_option( $flag_key, time() );
 }, 100 );
 
 /**
