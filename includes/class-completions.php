@@ -106,6 +106,76 @@ KEY synced_idx (mautic_synced)
 		}
 	}
 
+	/**
+	 * One-time reconcile with Mautic. The local table only started recording
+	 * mid-May, so it misses earlier real completions and can carry stray test
+	 * rows. Mautic is the source of truth (tag quiz-completed). This purges
+	 * test-pattern rows, then backfills any real completer not already present.
+	 * Answer detail for backfilled rows is sparse (email/name/date only); the
+	 * point is an accurate count + roster, not the historical answers.
+	 * Returns the number of rows backfilled.
+	 */
+	public static function reconcile_from_mautic() {
+		global $wpdb;
+		$table = self::table_name();
+
+		// A completion is a "test" if it came from an LP-internal address or a
+		// quiz-smoke/pre-launch tagged address.
+		$is_test = function ( $email ) {
+			$lc = strtolower( (string) $email );
+			return ( strpos( $lc, '@leadpiranha.com' ) !== false )
+				|| ( strpos( $lc, 'test@' ) === 0 )
+				|| ( strpos( $lc, '+quiz-' ) !== false );
+		};
+
+		// 1. Purge test rows already in the table.
+		foreach ( array( '%@leadpiranha.com', 'test@%', '%+quiz-%' ) as $pat ) {
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE email LIKE %s", $pat ) );
+		}
+
+		// 2. Backfill real quiz completers from Mautic.
+		if ( ! class_exists( 'SLRQ_Mautic' ) ) {
+			return 0;
+		}
+		$data = SLRQ_Mautic::api_get( '/api/contacts?search=' . rawurlencode( 'tag:quiz-completed' ) . '&limit=200', 15 );
+		if ( ! is_array( $data ) || empty( $data['contacts'] ) ) {
+			return 0;
+		}
+		$contacts = $data['contacts'];
+		if ( ! isset( $contacts[0] ) ) {
+			$contacts = array_values( $contacts ); // Mautic keys by id; normalize to a list.
+		}
+		$added = 0;
+		foreach ( $contacts as $c ) {
+			$core  = isset( $c['fields']['core'] ) && is_array( $c['fields']['core'] ) ? $c['fields']['core'] : array();
+			$val   = function ( $k ) use ( $core ) {
+				$v = $core[ $k ] ?? '';
+				return is_array( $v ) ? ( $v['value'] ?? '' ) : $v;
+			};
+			$email = trim( (string) $val( 'email' ) );
+			if ( $email === '' || $is_test( $email ) ) {
+				continue;
+			}
+			$exists = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE email = %s", $email ) );
+			if ( $exists ) {
+				continue;
+			}
+			$when = ! empty( $c['dateAdded'] ) ? gmdate( 'Y-m-d H:i:s', strtotime( $c['dateAdded'] ) ) : current_time( 'mysql' );
+			$wpdb->insert(
+				$table,
+				array(
+					'email'         => substr( $email, 0, 255 ),
+					'firstname'     => substr( (string) $val( 'firstname' ), 0, 60 ),
+					'mautic_synced' => 1,
+					'completed_at'  => $when,
+				),
+				array( '%s', '%s', '%d', '%s' )
+			);
+			$added++;
+		}
+		return $added;
+	}
+
 	public static function get_stats() {
 		global $wpdb;
 		$table = self::table_name();

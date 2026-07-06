@@ -3,7 +3,7 @@
  * Plugin Name:       Organic Growth
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-organic-growth
  * Description:       Sego Lily organic growth engine: the /your-routine quiz that captures retail leads, Mautic sync with tags, subscriber tagging on WooCommerce subscriptions, and a results + campaigns dashboard. Internal slug stays sego-lily-routine-quiz so auto-updates and saved settings keep working.
- * Version:           1.14.8
+ * Version:           1.14.9
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,10 +18,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.14.8' );
+define( 'SLRQ_VERSION', '1.14.9' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+
+/**
+ * One-time reconcile of the completions dashboard with Mautic (v1.14.9). The
+ * local table only started recording mid-May, so it missed earlier real
+ * completers and carried a couple of test rows. This purges test rows and
+ * backfills the real ones from Mautic (the source of truth) once, on the first
+ * admin load after the update. Option-gated so it never runs twice.
+ */
+add_action( 'admin_init', function () {
+	if ( get_option( 'slrq_reconcile_v1149_done' ) ) {
+		return;
+	}
+	if ( class_exists( 'SLRQ_Completions' ) && method_exists( 'SLRQ_Completions', 'reconcile_from_mautic' ) ) {
+		SLRQ_Completions::reconcile_from_mautic();
+	}
+	update_option( 'slrq_reconcile_v1149_done', 1 );
+} );
 
 require_once SLRQ_PLUGIN_DIR . 'includes/class-mautic.php';
 require_once SLRQ_PLUGIN_DIR . 'includes/class-recommendations.php';
@@ -739,11 +756,11 @@ add_action( 'template_redirect', function() {
 	if ( lprq_is_wholesale_context() ) return;
 	$mt    = new DateTimeZone( 'America/Denver' );
 	$now   = new DateTime( 'now', $mt );
-	// July 4 2026 free-shipping weekend. Window closes Sunday 7/5 at midnight MT
-	// ("standard rates come back Monday" per the campaign emails). Outside this
-	// window the hook does nothing; standard rates apply.
+	// July 4 2026 free-shipping window, EXTENDED by request through Wed 7/8
+	// (originally closed Sun 7/5). Outside this window the hook does nothing;
+	// standard rates apply. Update these dates to move or close the window.
 	$start = new DateTime( '2026-07-02 00:00', $mt );
-	$end   = new DateTime( '2026-07-05 23:59', $mt );
+	$end   = new DateTime( '2026-07-08 23:59', $mt );
 	if ( $now < $start || $now > $end ) return;
 
 	$code = apply_filters( 'lprq_auto_coupon_code', 'freeshipping' );
