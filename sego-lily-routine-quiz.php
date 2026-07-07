@@ -3,7 +3,7 @@
  * Plugin Name:       Organic Growth
  * Plugin URI:        https://github.com/louievillaverde/sego-lily-organic-growth
  * Description:       Sego Lily organic growth engine: the /your-routine quiz that captures retail leads, Mautic sync with tags, subscriber tagging on WooCommerce subscriptions, and a results + campaigns dashboard. Internal slug stays sego-lily-routine-quiz so auto-updates and saved settings keep working.
- * Version:           1.14.9
+ * Version:           1.14.10
  * Author:            Lead Piranha
  * Author URI:        https://leadpiranha.com
  * License:           Proprietary
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SLRQ_VERSION', '1.14.9' );
+define( 'SLRQ_VERSION', '1.14.10' );
 define( 'SLRQ_PLUGIN_FILE', __FILE__ );
 define( 'SLRQ_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLRQ_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -87,6 +87,16 @@ add_filter( 'lprq_signoff', function() {
  * etc.) and the wholesale plugin owns its own cart presentation.
  */
 function lprq_is_wholesale_context() {
+	// Defer to the wholesale plugin's authoritative detection first (session
+	// shopping context, wholesale_customer role, and the admin-preview path).
+	// Without this, the quiz cart/coupon hooks fire in wholesale sessions and
+	// revert wholesale pricing to retail at checkout.
+	if ( function_exists( 'slw_is_wholesale_context' ) && slw_is_wholesale_context() ) {
+		return true;
+	}
+	if ( function_exists( 'slw_is_wholesale_user' ) && slw_is_wholesale_user() ) {
+		return true;
+	}
 	if ( is_user_logged_in() ) {
 		$user = wp_get_current_user();
 		foreach ( (array) $user->roles as $role ) {
@@ -543,6 +553,7 @@ add_filter( 'woocommerce_cart_item_subtotal', function( $subtotal_html, $cart_it
 add_action( 'wp_loaded', function() {
 	if ( empty( $_GET['apply_coupon'] ) && empty( $_GET['coupon'] ) ) return;
 	if ( ! function_exists( 'WC' ) || ! WC()->cart ) return;
+	if ( function_exists( 'lprq_is_wholesale_context' ) && lprq_is_wholesale_context() ) return; // never apply a retail coupon to a wholesale cart
 	$code = sanitize_text_field( wp_unslash( $_GET['apply_coupon'] ?? $_GET['coupon'] ?? '' ) );
 	if ( empty( $code ) ) return;
 	if ( WC()->cart->has_discount( $code ) ) return;
@@ -845,6 +856,9 @@ add_action( 'wp_loaded', function() {
 	}
 	if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
 		return;
+	}
+	if ( function_exists( 'lprq_is_wholesale_context' ) && lprq_is_wholesale_context() ) {
+		return; // never inject retail routine products into a wholesale cart
 	}
 
 	if ( $action === 'add_one' ) {
